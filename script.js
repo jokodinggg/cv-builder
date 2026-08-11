@@ -1,43 +1,103 @@
-const experiences = [
-  { title: "Full-stack & AI Developer", date: "November 2025 — Saat Ini", company: "Joki Proyek | Freelance", bullets: "Mengerjakan lebih dari 50 project meliputi Web Development, AI/ML, IoT, n8n, dan Automation dengan skala local hingga production.\nBerhasil meraih omset 20 juta dalam 3 bulan pertama." },
-  { title: "Full-stack Developer", date: "November 2025 — Saat Ini", company: "Kominfo Balai Monitor I Semarang | Internship On-Site", bullets: "Menyelesaikan permasalahan administrasi dan penyerahan dokumen antar pihak dengan website monitoring perjalanan dinas." }
+const STORAGE_KEY = "jokoding-cv-builder-v3";
+
+let experiences = [
+  {
+    title: "Full-stack Developer & AI Engineer",
+    date: "November 2025 — Saat Ini",
+    company: "Freelance",
+    bullets: "Menyelesaikan lebih dari 50 proyek pengembangan perangkat lunak yang mencakup Web Development, AI/ML, IoT, automation, dan integrasi API.\nMengembangkan solusi dari tahap analisis kebutuhan, implementasi, hingga deployment untuk berbagai kebutuhan klien."
+  },
+  {
+    title: "Full-stack Developer",
+    date: "November 2025 — Februari 2026",
+    company: "Kominfo Balai Monitor I Semarang | Internship On-Site",
+    bullets: "Menyelesaikan permasalahan administrasi dan penyerahan dokumen antar pihak dengan website monitoring perjalanan dinas."
+  }
 ];
-const projects = [
-  { title: "Sistem Penyerbuk Kelapa Sawit untuk Integrasi Drone | Python, YOLO, Raspberry Pi 5", description: "Mengembangkan sistem edge AI untuk deteksi objek, monitoring volume pollen real-time, serta kontrol servo dan blower. YOLOv11 mencapai mAP 0,9023 dan 30,85 FPS pada Raspberry Pi 5." },
-  { title: "Website Dashboard Monitoring Perjalanan Dinas | Next.js, Express.js", description: "Membangun website monitoring berkas dan membantu administrasi perjalanan dinas menggunakan tech stack Next.js dan Express.js." },
-  { title: "Website AI Generator Creative Tools | Next.js, Nest.js", description: "Memudahkan affiliate marketer membuat konten berupa voice over, video, dan foto berbasis AI, lengkap hingga deployment di VPS." }
+
+let projects = [
+  {
+    title: "Sistem Penyerbuk Kelapa Sawit untuk Integrasi Drone",
+    tech: "Python, YOLO, Raspberry Pi",
+    bullets: "Mengembangkan sistem Computer Vision berbasis YOLOv11 untuk mendeteksi kematangan bunga betina kelapa sawit secara real-time sebagai dasar aktivasi mekanisme penyerbukan otomatis.\nMelakukan training, evaluasi, optimasi, dan deployment model object detection pada Raspberry Pi 5 sebagai edge device untuk menjalankan inferensi secara real-time.\nMengintegrasikan kamera, sensor ToF VL53L0X, dan aktuator untuk monitoring volume pollen serta mengontrol mekanisme penyemprotan pollen secara otomatis.\nMerancang sistem agar dapat diintegrasikan dengan drone sebagai platform penyerbukan otomatis pada perkebunan kelapa sawit."
+  },
+  {
+    title: "Sistem Pemilah Sampah Otomatis Berbasis Computer Vision",
+    tech: "Python, MobileNet, TensorFlow, OpenCV, ESP32, MQTT",
+    bullets: "Mengembangkan sistem Computer Vision berbasis MobileNet untuk mengklasifikasikan sampah secara real-time ke dalam kategori organik dan anorganik.\nMengimplementasikan inference model menggunakan TensorFlow/Keras dan OpenCV, serta mengintegrasikan hasil prediksi dengan sistem embedded berbasis ESP32 melalui protokol MQTT.\nMengintegrasikan sensor ultrasonik, LCD, dan servo untuk membangun mekanisme pemilahan sampah otomatis berdasarkan hasil klasifikasi AI."
+  }
+];
+
+let skills = [
+  { category: "Bahasa Pemrograman", details: "Python, JavaScript, TypeScript, C/C++, HTML, CSS, Bash" },
+  { category: "AI & Computer Vision", details: "YOLO, MobileNet, PyTorch, TensorFlow, OpenCV, Scikit-learn, Pandas, NumPy" },
+  { category: "Web & Backend", details: "Next.js, Express.js, NestJS, REST API" },
+  { category: "Database", details: "MySQL, PostgreSQL, Prisma" },
+  { category: "IoT & Edge Computing", details: "Raspberry Pi, ESP32, Sensor & Actuator Integration" },
+  { category: "Tools & Platform", details: "Git, Linux, Docker, n8n, Figma" }
 ];
 
 const byId = id => document.getElementById(id);
-const escapeHtml = value => String(value ?? "").replace(/[&<>"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[char]));
+const escapeHtml = value => String(value ?? "").replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[char]));
 const lines = value => String(value || "").split("\n").map(item => item.trim()).filter(Boolean);
+const collectionFor = type => type === "experience" ? experiences : type === "project" ? projects : skills;
 
 function renderEditor(type) {
   const target = byId(`${type}-fields`);
-  const entries = type === "experience" ? experiences : projects;
-  target.innerHTML = entries.map((entry, index) => type === "experience" ? `
-    <div class="repeat-card"><button class="remove" data-type="${type}" data-index="${index}" type="button">×</button>
-      <label>Jabatan<input data-type="${type}" data-index="${index}" data-key="title" value="${escapeHtml(entry.title)}"></label>
-      <label>Periode<input data-type="${type}" data-index="${index}" data-key="date" value="${escapeHtml(entry.date)}"></label>
-      <label>Perusahaan / organisasi<input data-type="${type}" data-index="${index}" data-key="company" value="${escapeHtml(entry.company)}"></label>
-      <label>Pencapaian <span class="hint">(satu baris satu poin)</span><textarea data-type="${type}" data-index="${index}" data-key="bullets">${escapeHtml(entry.bullets)}</textarea></label>
-    </div>` : `
-    <div class="repeat-card"><button class="remove" data-type="${type}" data-index="${index}" type="button">×</button>
-      <label>Nama proyek dan teknologi<input data-type="${type}" data-index="${index}" data-key="title" value="${escapeHtml(entry.title)}"></label>
-      <label>Deskripsi<textarea data-type="${type}" data-index="${index}" data-key="description">${escapeHtml(entry.description)}</textarea></label>
-    </div>`).join("");
+  const entries = collectionFor(type);
+  target.innerHTML = entries.map((entry, index) => {
+    const remove = `<button class="remove" data-type="${type}" data-index="${index}" type="button" aria-label="Hapus">×</button>`;
+    if (type === "experience") return `
+      <div class="repeat-card">${remove}
+        <label>Jabatan<input data-type="${type}" data-index="${index}" data-key="title" value="${escapeHtml(entry.title)}"></label>
+        <label>Periode<input data-type="${type}" data-index="${index}" data-key="date" value="${escapeHtml(entry.date)}"></label>
+        <label>Perusahaan / organisasi<input data-type="${type}" data-index="${index}" data-key="company" value="${escapeHtml(entry.company)}"></label>
+        <label>Pencapaian <span class="hint">(satu baris satu poin)</span><textarea data-type="${type}" data-index="${index}" data-key="bullets">${escapeHtml(entry.bullets)}</textarea></label>
+      </div>`;
+    if (type === "project") return `
+      <div class="repeat-card">${remove}
+        <label>Judul proyek<input data-type="${type}" data-index="${index}" data-key="title" value="${escapeHtml(entry.title)}"></label>
+        <label>Tech stack<input data-type="${type}" data-index="${index}" data-key="tech" value="${escapeHtml(entry.tech)}"></label>
+        <label>Pencapaian / deskripsi <span class="hint">(satu baris satu poin)</span><textarea data-type="${type}" data-index="${index}" data-key="bullets">${escapeHtml(entry.bullets)}</textarea></label>
+      </div>`;
+    return `
+      <div class="repeat-card">${remove}
+        <label>Nama kategori<input data-type="${type}" data-index="${index}" data-key="category" value="${escapeHtml(entry.category)}"></label>
+        <label>Daftar keterampilan<input data-type="${type}" data-index="${index}" data-key="details" value="${escapeHtml(entry.details)}"></label>
+      </div>`;
+  }).join("");
+}
+
+function persistState() {
+  try {
+    const form = Object.fromEntries([...document.querySelectorAll("[data-bind]")].map(input => [input.dataset.bind, input.value]));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ form, experiences, projects, skills }));
+  } catch (_) { /* Penyimpanan lokal tidak tersedia; CV tetap dapat digunakan. */ }
+}
+
+function restoreState() {
+  try {
+    const state = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!state) return;
+    if (Array.isArray(state.experiences)) experiences = state.experiences;
+    if (Array.isArray(state.projects)) projects = state.projects;
+    if (Array.isArray(state.skills)) skills = state.skills;
+    Object.entries(state.form || {}).forEach(([key, value]) => {
+      const input = document.querySelector(`[data-bind="${key}"]`);
+      if (input) input.value = value;
+    });
+  } catch (_) { /* Jika data lama tidak valid, gunakan isi default. */ }
 }
 
 function renderPreview() {
   document.querySelectorAll("[data-bind]").forEach(input => {
-    const key = input.dataset.bind;
-    const output = byId(`preview-${key}`);
-    if (output) {
-      const contactText = output.querySelector("span");
-      if (contactText) contactText.textContent = input.value;
-      else output.textContent = input.value;
-    }
+    const output = byId(`preview-${input.dataset.bind}`);
+    if (!output) return;
+    const contactText = output.querySelector("span");
+    if (contactText) contactText.textContent = input.value;
+    else output.textContent = input.value;
   });
+
   const email = document.querySelector('[data-bind="email"]').value;
   const whatsapp = document.querySelector('[data-bind="whatsapp"]').value;
   const linkedin = document.querySelector('[data-bind="linkedin"]').value;
@@ -46,28 +106,43 @@ function renderPreview() {
   byId("preview-whatsapp").href = `https://wa.me/${whatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62")}`;
   byId("preview-linkedin").href = `https://${linkedin.replace(/^https?:\/\//, "")}`;
   byId("preview-github").href = `https://${github.replace(/^https?:\/\//, "")}`;
-  byId("preview-email").querySelector("span").textContent = email;
-  byId("preview-whatsapp").querySelector("span").textContent = whatsapp;
-  byId("preview-experiences").innerHTML = experiences.map(item => `<article class="role"><div class="role-header"><span class="role-title">${escapeHtml(item.title)}</span><span class="role-date">${escapeHtml(item.date)}</span></div><p class="company">${escapeHtml(item.company)}</p><ul>${lines(item.bullets).map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul></article>`).join("");
-  byId("preview-projects").innerHTML = projects.map(item => `<article class="project"><strong class="project-title">${escapeHtml(item.title)}</strong><ul><li>${escapeHtml(item.description)}</li></ul></article>`).join("");
+
+  byId("preview-skills").innerHTML = skills.map(item => `<p><strong>${escapeHtml(item.category)}:</strong> ${escapeHtml(item.details)}</p>`).join("");
+  byId("preview-experiences").innerHTML = experiences.map(item => `<article class="role"><div class="role-header"><span class="role-title">${escapeHtml(item.title)}</span><span class="role-date">${escapeHtml(item.date)}</span></div><p class="company">${escapeHtml(item.company)}</p><ul>${lines(item.bullets).map(bullet => `<li>${escapeHtml(bullet)}</li>`).join("")}</ul></article>`).join("");
+  byId("preview-projects").innerHTML = projects.map(item => `<article class="project"><div class="project-title">${escapeHtml(item.title)}</div><p class="project-tech">${escapeHtml(item.tech)}</p><ul>${lines(item.bullets).map(bullet => `<li>${escapeHtml(bullet)}</li>`).join("")}</ul></article>`).join("");
   byId("preview-achievements").innerHTML = lines(document.querySelector('[data-bind="achievements"]').value).map(item => `<li>${escapeHtml(item)}</li>`).join("");
-  byId("preview-education").innerHTML = lines(document.querySelector('[data-bind="education"]').value).map(line => { const [name, date = "", note = ""] = line.split("|").map(value => value.trim()); return `<div class="edu-row"><div><span class="edu-name">${escapeHtml(name)}</span>${note ? `<p class="edu-note">${escapeHtml(note)}</p>` : ""}</div><span class="edu-date">${escapeHtml(date)}</span></div>`; }).join("");
+  byId("preview-education").innerHTML = lines(document.querySelector('[data-bind="education"]').value).map(line => {
+    const [name, date = "", note = ""] = line.split("|").map(value => value.trim());
+    return `<div class="edu-row"><div><span class="edu-name">${escapeHtml(name)}</span>${note ? `<p class="edu-note">${escapeHtml(note)}</p>` : ""}</div><span class="edu-date">${escapeHtml(date)}</span></div>`;
+  }).join("");
+  persistState();
 }
 
 function updateRepeat(event) {
   const input = event.target;
   if (!input.dataset.type || !input.dataset.key) return;
-  const collection = input.dataset.type === "experience" ? experiences : projects;
-  collection[Number(input.dataset.index)][input.dataset.key] = input.value;
+  collectionFor(input.dataset.type)[Number(input.dataset.index)][input.dataset.key] = input.value;
   renderPreview();
 }
 
-document.addEventListener("input", event => { if (event.target.dataset.bind) renderPreview(); updateRepeat(event); });
+document.addEventListener("input", event => {
+  if (event.target.dataset.bind) renderPreview();
+  updateRepeat(event);
+});
 document.addEventListener("click", event => {
   const remove = event.target.closest(".remove");
-  if (remove) { const list = remove.dataset.type === "experience" ? experiences : projects; list.splice(Number(remove.dataset.index), 1); renderEditor(remove.dataset.type); renderPreview(); }
+  if (!remove) return;
+  collectionFor(remove.dataset.type).splice(Number(remove.dataset.index), 1);
+  renderEditor(remove.dataset.type);
+  renderPreview();
 });
-byId("add-experience").addEventListener("click", () => { experiences.push({ title:"Jabatan", date:"Tahun — Tahun", company:"Perusahaan", bullets:"Jelaskan pencapaian utama." }); renderEditor("experience"); renderPreview(); });
-byId("add-project").addEventListener("click", () => { projects.push({ title:"Nama proyek | Teknologi", description:"Jelaskan masalah, solusi, dan hasil proyek." }); renderEditor("project"); renderPreview(); });
+byId("add-skill").addEventListener("click", () => { skills.push({ category: "Kategori keterampilan", details: "Skill 1, Skill 2" }); renderEditor("skill"); renderPreview(); });
+byId("add-experience").addEventListener("click", () => { experiences.push({ title: "Jabatan", date: "Tahun — Tahun", company: "Perusahaan", bullets: "Jelaskan pencapaian utama." }); renderEditor("experience"); renderPreview(); });
+byId("add-project").addEventListener("click", () => { projects.push({ title: "Nama proyek", tech: "Teknologi", bullets: "Jelaskan capaian proyek." }); renderEditor("project"); renderPreview(); });
 byId("print-button").addEventListener("click", () => window.print());
-renderEditor("experience"); renderEditor("project"); renderPreview();
+
+restoreState();
+renderEditor("skill");
+renderEditor("experience");
+renderEditor("project");
+renderPreview();

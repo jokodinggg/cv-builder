@@ -30,7 +30,7 @@
             <label>Nama lengkap<input data-bind="name" value="Irfan Qobus Salim" /></label>
             <div class="field-grid two">
               <label>Email<input data-bind="email" value="irfanqobus.01@gmail.com" /></label>
-              <label>WhatsApp<input data-bind="whatsapp" value="+6281779592283" /></label>
+              <label>WhatsApp<input data-bind="whatsapp" value="+6281333543975" /></label>
               <label>LinkedIn<input data-bind="linkedin" value="linkedin.com/in/irfanqs" /></label>
               <label>GitHub<input data-bind="github" value="github.com/irfanqs" /></label>
             </div>
@@ -38,15 +38,14 @@
 
           <fieldset>
             <legend>Profil singkat</legend>
-            <label>Ringkasan<textarea data-bind="summary" rows="7">Mahasiswa Teknologi Informasi semester 8 Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada Artificial Intelligence (AI) dan Internet of Things (IoT). Berpengalaman mengembangkan solusi AI untuk kebutuhan bisnis serta aplikasi web full-stack. Aktif sebagai freelancer IT dan telah menyelesaikan lebih dari 50 project dalam 2 bulan.</textarea></label>
+            <label>Ringkasan<textarea data-bind="summary" rows="7">Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada Artificial Intelligence, Computer Vision, Internet of Things (IoT), dan pengembangan perangkat lunak. Berpengalaman dalam pengembangan sistem object detection berbasis YOLO, deployment model AI pada edge device (Raspberry Pi dan Jetson Nano), serta integrasi sensor dan perangkat keras. Memiliki pengalaman dalam pengembangan aplikasi full-stack, machine learning, dan sistem berbasis Linux melalui berbagai proyek akademik dan profesional sebagai freelancer.</textarea></label>
           </fieldset>
 
           <fieldset>
             <legend>Keterampilan</legend>
-            <label>Bahasa pemrograman<input data-bind="programming" value="HTML, CSS, JavaScript, TypeScript, Python, C, C++ (Arduino), Bash" /></label>
-            <label>Framework<input data-bind="frameworks" value="TensorFlow, PyTorch, Next.js, Express.js, Nest.js" /></label>
-            <label>Library<input data-bind="libraries" value="NumPy, Pandas, Matplotlib, Seaborn, OpenCV, Scikit-learn" /></label>
-            <label>Tools lain<input data-bind="tools" value="PostgreSQL, Prisma, Raspberry Pi, Git, n8n, Figma, Photoshop, Canva" /></label>
+            <p class="help-text">Buat kategori sendiri, lalu isi teknologi atau kemampuan yang relevan.</p>
+            <div id="skill-fields" class="repeat-fields"></div>
+            <button class="text-button" id="add-skill" type="button">+ Tambah kategori keterampilan</button>
           </fieldset>
 
           <fieldset>
@@ -64,9 +63,9 @@
           <fieldset>
             <legend>Prestasi & pendidikan</legend>
             <label>Prestasi <span class="hint">(satu baris untuk satu prestasi)</span><textarea data-bind="achievements" rows="4">Top 30 Ericsson Hackathon 2025
-Top 10 Hackathon Sawit 2025
+Top 10 Hackathon Sawit Nasional 2025
 Penerima Pendanaan PKM-KC 2025</textarea></label>
-            <label>Pendidikan <span class="hint">(format: Institusi | tahun | keterangan)</span><textarea data-bind="education" rows="4">S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — Sekarang | IPK 3,74/4,00
+            <label>Pendidikan <span class="hint">(format: Institusi | tahun | keterangan)</span><textarea data-bind="education" rows="4">S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00
 SMA Negeri 5 Semarang | 2018 — 2021 |</textarea></label>
           </fieldset>
         </form>
@@ -82,7 +81,7 @@ SMA Negeri 5 Semarang | 2018 — 2021 |</textarea></label>
           <header class="cv-header">
             <h2 id="preview-name">Irfan Qobus Salim</h2>
             <div class="contact-row">
-              <a id="preview-whatsapp" href="#"><svg><use href="#icon-whatsapp"></use></svg><span>+6281779592283</span></a>
+              <a id="preview-whatsapp" href="#"><svg><use href="#icon-whatsapp"></use></svg><span>+6281333543975</span></a>
               <a id="preview-email" href="#"><svg><use href="#icon-email"></use></svg><span>irfanqobus.01@gmail.com</span></a>
               <a id="preview-linkedin" href="#"><svg><use href="#icon-linkedin"></use></svg><span>linkedin.com/in/irfanqs</span></a>
               <a id="preview-github" href="#"><svg><use href="#icon-github"></use></svg><span>github.com/irfanqs</span></a>
@@ -91,15 +90,10 @@ SMA Negeri 5 Semarang | 2018 — 2021 |</textarea></label>
 
           <p id="preview-summary" class="summary"></p>
 
-          <section class="cv-section"><h3>Keterampilan</h3><div class="skill-list">
-            <p><strong>Bahasa Pemrograman:</strong> <span id="preview-programming"></span></p>
-            <p><strong>Framework:</strong> <span id="preview-frameworks"></span></p>
-            <p><strong>Library:</strong> <span id="preview-libraries"></span></p>
-            <p><strong>Tools lain:</strong> <span id="preview-tools"></span></p>
-          </div></section>
+          <section class="cv-section"><h3>Keterampilan</h3><div id="preview-skills" class="skill-list"></div></section>
 
           <section class="cv-section"><h3>Pengalaman</h3><div id="preview-experiences"></div></section>
-          <section class="cv-section"><h3>Proyek Pilihan</h3><div id="preview-projects"></div></section>
+          <section class="cv-section projects-section"><h3>Proyek Pilihan</h3><div id="preview-projects"></div></section>
           <section class="cv-section"><h3>Prestasi</h3><ul id="preview-achievements" class="clean-list"></ul></section>
           <section class="cv-section education"><h3>Pendidikan</h3><div id="preview-education"></div></section>
         </article>
