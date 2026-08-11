@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CV Builder — Irfan Qobus Salim</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <svg class="icon-sprite" aria-hidden="true" focusable="false">
+      <symbol id="icon-phone" viewBox="0 0 24 24"><path d="M6.6 10.8a15.6 15.6 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11 11 0 003.45.55 1 1 0 011 1V20a1 1 0 01-1 1C10.54 21 3 13.46 3 4a1 1 0 011-1h3.5a1 1 0 011 1 11 11 0 00.55 3.45 1 1 0 01-.24 1z"/></symbol>
+      <symbol id="icon-whatsapp" viewBox="0 0 24 24"><path d="M20.5 3.5A11.9 11.9 0 0012.03 0C5.43 0 .07 5.36.07 11.97c0 2.1.55 4.15 1.6 5.95L0 24l6.25-1.64a11.95 11.95 0 005.77 1.47h.01c6.59 0 11.96-5.36 11.96-11.97 0-3.2-1.25-6.2-3.49-8.36zm-8.48 18.3h-.01a9.94 9.94 0 01-5.07-1.39l-.36-.21-3.71.97.99-3.62-.24-.37a9.93 9.93 0 01-1.53-5.28c0-5.49 4.46-9.95 9.94-9.95 2.65 0 5.14 1.03 7.01 2.91a9.84 9.84 0 012.91 7.02c0 5.48-4.46 9.94-9.93 9.94zm5.45-7.45c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.23-.65.08a8.07 8.07 0 01-2.37-1.46 8.9 8.9 0 01-1.64-2.04c-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.91-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.01-1.04 2.46 0 1.45 1.07 2.85 1.21 3.05.15.2 2.1 3.2 5.08 4.49.71.31 1.27.49 1.7.63.71.22 1.35.19 1.86.12.57-.08 1.75-.72 2-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z"/></symbol>
+      <symbol id="icon-linkedin" viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.98h3.42v1.57h.05c.47-.9 1.64-1.85 3.37-1.85 3.61 0 4.27 2.37 4.27 5.46v6.29zM5.32 7.41a2.07 2.07 0 110-4.14 2.07 2.07 0 010 4.14zm1.78 13.04H3.54V8.98H7.1v11.47zM22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.72V1.72C24 .77 23.21 0 22.23 0z"/></symbol>
+      <symbol id="icon-github" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 00-3.79 23.38c.6.11.82-.26.82-.58v-2.25c-3.34.73-4.04-1.42-4.04-1.42-.54-1.39-1.34-1.75-1.34-1.75-1.1-.75.08-.74.08-.74 1.21.09 1.85 1.25 1.85 1.25 1.08 1.85 2.83 1.32 3.52 1.01.11-.78.42-1.32.76-1.62-2.67-.3-5.48-1.34-5.48-5.95 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.53.12-3.19 0 0 1.01-.32 3.3 1.23A11.5 11.5 0 0112 6.1c1.02 0 2.05.14 3.01.41 2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.89.12 3.19.77.84 1.24 1.91 1.24 3.22 0 4.62-2.82 5.65-5.5 5.95.43.37.82 1.09.82 2.2v3.26c0 .32.22.7.83.58A12 12 0 0012 .3z"/></symbol>
+    </svg>
+    <main class="app-shell">
+      <aside class="editor">
+        <div class="editor-heading">
+          <p class="eyebrow">Jokoding tools</p>
+          <h1>Buat CV baru</h1>
+          <p>Ubah detail CV di bawah. Pratinjau akan diperbarui secara langsung.</p>
+        </div>
+
+        <form id="cv-form">
+          <fieldset>
+            <legend>Identitas</legend>
+            <label>Nama lengkap<input data-bind="name" value="Irfan Qobus Salim" /></label>
+            <div class="field-grid two">
+              <label>Nomor telepon<input data-bind="phone" value="+6281779592283" /></label>
+              <label>WhatsApp<input data-bind="whatsapp" value="+6281779592283" /></label>
+              <label>LinkedIn<input data-bind="linkedin" value="linkedin.com/in/irfanqs" /></label>
+              <label>GitHub<input data-bind="github" value="github.com/irfanqs" /></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Profil singkat</legend>
+            <label>Ringkasan<textarea data-bind="summary" rows="7">Mahasiswa Teknologi Informasi semester 8 Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada Artificial Intelligence (AI) dan Internet of Things (IoT). Berpengalaman mengembangkan solusi AI untuk kebutuhan bisnis serta aplikasi web full-stack. Aktif sebagai freelancer IT dan telah menyelesaikan lebih dari 50 project dalam 2 bulan.</textarea></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Keterampilan</legend>
+            <label>Bahasa pemrograman<input data-bind="programming" value="HTML, CSS, JavaScript, TypeScript, Python, C, C++ (Arduino), Bash" /></label>
+            <label>Framework<input data-bind="frameworks" value="TensorFlow, PyTorch, Next.js, Express.js, Nest.js" /></label>
+            <label>Library<input data-bind="libraries" value="NumPy, Pandas, Matplotlib, Seaborn, OpenCV, Scikit-learn" /></label>
+            <label>Tools lain<input data-bind="tools" value="PostgreSQL, Prisma, Raspberry Pi, Git, n8n, Figma, Photoshop, Canva" /></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Pengalaman</legend>
+            <div id="experience-fields" class="repeat-fields"></div>
+            <button class="text-button" id="add-experience" type="button">+ Tambah pengalaman</button>
+          </fieldset>
+
+          <fieldset>
+            <legend>Proyek pilihan</legend>
+            <div id="project-fields" class="repeat-fields"></div>
+            <button class="text-button" id="add-project" type="button">+ Tambah proyek</button>
+          </fieldset>
+
+          <fieldset>
+            <legend>Prestasi & pendidikan</legend>
+            <label>Prestasi <span class="hint">(satu baris untuk satu prestasi)</span><textarea data-bind="achievements" rows="4">Top 30 Ericsson Hackathon 2025
+Top 10 Hackathon Sawit 2025
+Penerima Pendanaan PKM-KC 2025</textarea></label>
+            <label>Pendidikan <span class="hint">(format: Institusi | tahun | keterangan)</span><textarea data-bind="education" rows="4">S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — Sekarang | IPK 3,74/4,00
+SMA Negeri 5 Semarang | 2018 — 2021 |</textarea></label>
+          </fieldset>
+        </form>
+      </aside>
+
+      <section class="preview-panel" aria-label="Pratinjau CV">
+        <div class="preview-toolbar">
+          <div><span class="status-dot"></span>Pratinjau siap dicetak</div>
+          <button id="print-button" type="button">Download PDF</button>
+        </div>
+
+        <article id="cv-sheet" class="cv-sheet">
+          <header class="cv-header">
+            <h2 id="preview-name">Irfan Qobus Salim</h2>
+            <div class="contact-row">
+              <a id="preview-phone" href="#"><svg><use href="#icon-phone"></use></svg><span>+6281779592283</span></a>
+              <a id="preview-whatsapp" href="#"><svg><use href="#icon-whatsapp"></use></svg><span>+6281779592283</span></a>
+              <a id="preview-linkedin" href="#"><svg><use href="#icon-linkedin"></use></svg><span>linkedin.com/in/irfanqs</span></a>
+              <a id="preview-github" href="#"><svg><use href="#icon-github"></use></svg><span>github.com/irfanqs</span></a>
+            </div>
+          </header>
+
+          <p id="preview-summary" class="summary"></p>
+
+          <section class="cv-section"><h3>Keterampilan</h3><div class="skill-list">
+            <p><strong>Bahasa Pemrograman:</strong> <span id="preview-programming"></span></p>
+            <p><strong>Framework:</strong> <span id="preview-frameworks"></span></p>
+            <p><strong>Library:</strong> <span id="preview-libraries"></span></p>
+            <p><strong>Tools lain:</strong> <span id="preview-tools"></span></p>
+          </div></section>
+
+          <section class="cv-section"><h3>Pengalaman</h3><div id="preview-experiences"></div></section>
+          <section class="cv-section"><h3>Proyek Pilihan</h3><div id="preview-projects"></div></section>
+          <section class="cv-section"><h3>Prestasi</h3><ul id="preview-achievements" class="clean-list"></ul></section>
+          <section class="cv-section education"><h3>Pendidikan</h3><div id="preview-education"></div></section>
+        </article>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
