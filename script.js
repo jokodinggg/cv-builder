@@ -38,15 +38,15 @@ function renderPreview() {
       else output.textContent = input.value;
     }
   });
-  const phone = document.querySelector('[data-bind="phone"]').value;
+  const email = document.querySelector('[data-bind="email"]').value;
   const whatsapp = document.querySelector('[data-bind="whatsapp"]').value;
   const linkedin = document.querySelector('[data-bind="linkedin"]').value;
   const github = document.querySelector('[data-bind="github"]').value;
-  byId("preview-phone").href = `tel:${phone.replace(/\s/g, "")}`;
+  byId("preview-email").href = `mailto:${email}`;
   byId("preview-whatsapp").href = `https://wa.me/${whatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62")}`;
   byId("preview-linkedin").href = `https://${linkedin.replace(/^https?:\/\//, "")}`;
   byId("preview-github").href = `https://${github.replace(/^https?:\/\//, "")}`;
-  byId("preview-phone").querySelector("span").textContent = phone;
+  byId("preview-email").querySelector("span").textContent = email;
   byId("preview-whatsapp").querySelector("span").textContent = whatsapp;
   byId("preview-experiences").innerHTML = experiences.map(item => `<article class="role"><div class="role-header"><span class="role-title">${escapeHtml(item.title)}</span><span class="role-date">${escapeHtml(item.date)}</span></div><p class="company">${escapeHtml(item.company)}</p><ul>${lines(item.bullets).map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul></article>`).join("");
   byId("preview-projects").innerHTML = projects.map(item => `<article class="project"><strong class="project-title">${escapeHtml(item.title)}</strong><ul><li>${escapeHtml(item.description)}</li></ul></article>`).join("");
