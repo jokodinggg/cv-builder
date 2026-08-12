@@ -1,4 +1,9 @@
 const STORAGE_KEY = "jokoding-cv-builder-v3";
+let language = "id";
+const UI_COPY = {
+  id: { builderTitle:"Buat CV baru", builderSubtitle:"Ubah detail CV di bawah. Pratinjau akan diperbarui secara langsung.", identity:"Identitas", fullName:"Nama lengkap", profile:"Profil singkat", summary:"Ringkasan", skills:"Keterampilan", skillsHelp:"Buat kategori sendiri, lalu isi teknologi atau kemampuan yang relevan.", addSkill:"+ Tambah kategori keterampilan", experience:"Pengalaman", addExperience:"+ Tambah pengalaman", projects:"Proyek pilihan", selectedProjects:"Proyek Pilihan", addProject:"+ Tambah proyek", achievementEducation:"Prestasi & pendidikan", achievements:"Prestasi", education:"Pendidikan", readyToPrint:"Pratinjau siap dicetak", translateButton:"Translate to English" },
+  en: { builderTitle:"Create a new CV", builderSubtitle:"Edit the details below. The preview updates instantly.", identity:"Personal details", fullName:"Full name", profile:"Professional summary", summary:"Summary", skills:"Skills", skillsHelp:"Create your own categories, then list the relevant technologies or capabilities.", addSkill:"+ Add skill category", experience:"Experience", addExperience:"+ Add experience", projects:"Selected projects", selectedProjects:"Selected Projects", addProject:"+ Add project", achievementEducation:"Achievements & education", achievements:"Achievements", education:"Education", readyToPrint:"Preview ready to print", translateButton:"Switch to Indonesian" }
+};
 
 let experiences = [
   {
@@ -71,7 +76,7 @@ function renderEditor(type) {
 function persistState() {
   try {
     const form = Object.fromEntries([...document.querySelectorAll("[data-bind]")].map(input => [input.dataset.bind, input.value]));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ form, experiences, projects, skills }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ form, experiences, projects, skills, language }));
   } catch (_) { /* Penyimpanan lokal tidak tersedia; CV tetap dapat digunakan. */ }
 }
 
@@ -82,6 +87,7 @@ function restoreState() {
     if (Array.isArray(state.experiences)) experiences = state.experiences;
     if (Array.isArray(state.projects)) projects = state.projects;
     if (Array.isArray(state.skills)) skills = state.skills;
+    if (state.language === "en" || state.language === "id") language = state.language;
     Object.entries(state.form || {}).forEach(([key, value]) => {
       const input = document.querySelector(`[data-bind="${key}"]`);
       if (input) input.value = value;
@@ -89,7 +95,60 @@ function restoreState() {
   } catch (_) { /* Jika data lama tidak valid, gunakan isi default. */ }
 }
 
+function applyUiLanguage() {
+  const copy = UI_COPY[language];
+  document.documentElement.lang = language;
+  document.querySelectorAll("[data-i18n]").forEach(element => {
+    element.textContent = copy[element.dataset.i18n] || element.textContent;
+  });
+  byId("translate-button").textContent = copy.translateButton;
+}
+
+async function translateText(text, source, target) {
+  const value = String(text || "").trim();
+  if (!value) return text;
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(value)}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Translation request failed");
+  const data = await response.json();
+  return data[0].map(part => part[0]).join("");
+}
+
+async function translateCv() {
+  const button = byId("translate-button");
+  const source = language;
+  const target = source === "id" ? "en" : "id";
+  button.disabled = true;
+  button.textContent = target === "en" ? "Translating…" : "Menerjemahkan…";
+  try {
+    const boundKeys = ["summary", "achievements", "education"];
+    const textFields = boundKeys.map(key => document.querySelector(`[data-bind="${key}"]`));
+    const allTasks = [
+      ...textFields.map(field => translateText(field.value, source, target)),
+      ...skills.flatMap(skill => [translateText(skill.category, source, target), translateText(skill.details, source, target)]),
+      ...experiences.flatMap(item => [translateText(item.title, source, target), translateText(item.company, source, target), translateText(item.bullets, source, target)]),
+      ...projects.flatMap(item => [translateText(item.title, source, target), translateText(item.tech, source, target), translateText(item.bullets, source, target)])
+    ];
+    const translated = await Promise.all(allTasks);
+    let cursor = 0;
+    textFields.forEach(field => { field.value = translated[cursor++]; });
+    skills.forEach(skill => { skill.category = translated[cursor++]; skill.details = translated[cursor++]; });
+    experiences.forEach(item => { item.title = translated[cursor++]; item.company = translated[cursor++]; item.bullets = translated[cursor++]; });
+    projects.forEach(item => { item.title = translated[cursor++]; item.tech = translated[cursor++]; item.bullets = translated[cursor++]; });
+    language = target;
+    renderEditor("skill"); renderEditor("experience"); renderEditor("project");
+    renderPreview();
+  } catch (error) {
+    alert("Terjemahan otomatis membutuhkan koneksi internet. Periksa koneksi Anda lalu coba lagi.");
+    console.error(error);
+  } finally {
+    button.disabled = false;
+    applyUiLanguage();
+  }
+}
+
 function renderPreview() {
+  applyUiLanguage();
   document.querySelectorAll("[data-bind]").forEach(input => {
     const output = byId(`preview-${input.dataset.bind}`);
     if (!output) return;
@@ -129,6 +188,14 @@ document.addEventListener("input", event => {
   if (event.target.dataset.bind) renderPreview();
   updateRepeat(event);
 });
+document.addEventListener("focusin", event => {
+  const fieldset = event.target.closest("fieldset[data-preview-target]");
+  if (!fieldset) return;
+  // Field pendidikan berada dalam fieldset yang sama dengan prestasi.
+  const targetSelector = event.target.dataset.bind === "education" ? "#preview-education" : fieldset.dataset.previewTarget;
+  const target = document.querySelector(targetSelector);
+  if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+});
 document.addEventListener("click", event => {
   const remove = event.target.closest(".remove");
   if (!remove) return;
@@ -140,6 +207,7 @@ byId("add-skill").addEventListener("click", () => { skills.push({ category: "Kat
 byId("add-experience").addEventListener("click", () => { experiences.push({ title: "Jabatan", date: "Tahun — Tahun", company: "Perusahaan", bullets: "Jelaskan pencapaian utama." }); renderEditor("experience"); renderPreview(); });
 byId("add-project").addEventListener("click", () => { projects.push({ title: "Nama proyek", tech: "Teknologi", bullets: "Jelaskan capaian proyek." }); renderEditor("project"); renderPreview(); });
 byId("print-button").addEventListener("click", () => window.print());
+byId("translate-button").addEventListener("click", translateCv);
 
 restoreState();
 renderEditor("skill");

@@ -20,14 +20,14 @@
       <aside class="editor">
         <div class="editor-heading">
           <p class="eyebrow">Jokoding tools</p>
-          <h1>Buat CV baru</h1>
-          <p>Ubah detail CV di bawah. Pratinjau akan diperbarui secara langsung.</p>
+          <h1 data-i18n="builderTitle">Buat CV baru</h1>
+          <p data-i18n="builderSubtitle">Ubah detail CV di bawah. Pratinjau akan diperbarui secara langsung.</p>
         </div>
 
         <form id="cv-form">
-          <fieldset>
-            <legend>Identitas</legend>
-            <label>Nama lengkap<input data-bind="name" value="Irfan Qobus Salim" /></label>
+          <fieldset data-preview-target=".cv-header">
+            <legend data-i18n="identity">Identitas</legend>
+            <label><span data-i18n="fullName">Nama lengkap</span><input data-bind="name" value="Irfan Qobus Salim" /></label>
             <div class="field-grid two">
               <label>Email<input data-bind="email" value="irfanqobus.01@gmail.com" /></label>
               <label>WhatsApp<input data-bind="whatsapp" value="+6281333543975" /></label>
@@ -36,32 +36,32 @@
             </div>
           </fieldset>
 
-          <fieldset>
-            <legend>Profil singkat</legend>
-            <label>Ringkasan<textarea data-bind="summary" rows="7">Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada Artificial Intelligence, Computer Vision, Internet of Things (IoT), dan pengembangan perangkat lunak. Berpengalaman dalam pengembangan sistem object detection berbasis YOLO, deployment model AI pada edge device (Raspberry Pi dan Jetson Nano), serta integrasi sensor dan perangkat keras. Memiliki pengalaman dalam pengembangan aplikasi full-stack, machine learning, dan sistem berbasis Linux melalui berbagai proyek akademik dan profesional sebagai freelancer.</textarea></label>
+          <fieldset data-preview-target="#preview-summary">
+            <legend data-i18n="profile">Profil singkat</legend>
+            <label><span data-i18n="summary">Ringkasan</span><textarea data-bind="summary" rows="7">Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada Artificial Intelligence, Computer Vision, Internet of Things (IoT), dan pengembangan perangkat lunak. Berpengalaman dalam pengembangan sistem object detection berbasis YOLO, deployment model AI pada edge device (Raspberry Pi dan Jetson Nano), serta integrasi sensor dan perangkat keras. Memiliki pengalaman dalam pengembangan aplikasi full-stack, machine learning, dan sistem berbasis Linux melalui berbagai proyek akademik dan profesional sebagai freelancer.</textarea></label>
           </fieldset>
 
-          <fieldset>
-            <legend>Keterampilan</legend>
-            <p class="help-text">Buat kategori sendiri, lalu isi teknologi atau kemampuan yang relevan.</p>
+          <fieldset data-preview-target="#preview-skills">
+            <legend data-i18n="skills">Keterampilan</legend>
+            <p class="help-text" data-i18n="skillsHelp">Buat kategori sendiri, lalu isi teknologi atau kemampuan yang relevan.</p>
             <div id="skill-fields" class="repeat-fields"></div>
-            <button class="text-button" id="add-skill" type="button">+ Tambah kategori keterampilan</button>
+            <button class="text-button" id="add-skill" type="button" data-i18n="addSkill">+ Tambah kategori keterampilan</button>
           </fieldset>
 
-          <fieldset>
-            <legend>Pengalaman</legend>
+          <fieldset data-preview-target="#preview-experiences">
+            <legend data-i18n="experience">Pengalaman</legend>
             <div id="experience-fields" class="repeat-fields"></div>
-            <button class="text-button" id="add-experience" type="button">+ Tambah pengalaman</button>
+            <button class="text-button" id="add-experience" type="button" data-i18n="addExperience">+ Tambah pengalaman</button>
           </fieldset>
 
-          <fieldset>
-            <legend>Proyek pilihan</legend>
+          <fieldset data-preview-target="#preview-projects">
+            <legend data-i18n="projects">Proyek pilihan</legend>
             <div id="project-fields" class="repeat-fields"></div>
-            <button class="text-button" id="add-project" type="button">+ Tambah proyek</button>
+            <button class="text-button" id="add-project" type="button" data-i18n="addProject">+ Tambah proyek</button>
           </fieldset>
 
-          <fieldset>
-            <legend>Prestasi & pendidikan</legend>
+          <fieldset data-preview-target="#preview-achievements">
+            <legend data-i18n="achievementEducation">Prestasi & pendidikan</legend>
             <label>Prestasi <span class="hint">(satu baris untuk satu prestasi)</span><textarea data-bind="achievements" rows="4">Top 30 Ericsson Hackathon 2025
 Top 10 Hackathon Sawit Nasional 2025
 Penerima Pendanaan PKM-KC 2025</textarea></label>
@@ -73,8 +73,8 @@ SMA Negeri 5 Semarang | 2018 — 2021 |</textarea></label>
 
       <section class="preview-panel" aria-label="Pratinjau CV">
         <div class="preview-toolbar">
-          <div><span class="status-dot"></span>Pratinjau siap dicetak</div>
-          <button id="print-button" type="button">Download PDF</button>
+          <div><span class="status-dot"></span><span data-i18n="readyToPrint">Pratinjau siap dicetak</span></div>
+          <div class="toolbar-actions"><button id="translate-button" class="translate-button" type="button">Translate to English</button><button id="print-button" type="button">Download PDF</button></div>
         </div>
 
         <article id="cv-sheet" class="cv-sheet">
@@ -90,12 +90,12 @@ SMA Negeri 5 Semarang | 2018 — 2021 |</textarea></label>
 
           <p id="preview-summary" class="summary"></p>
 
-          <section class="cv-section"><h3>Keterampilan</h3><div id="preview-skills" class="skill-list"></div></section>
+          <section class="cv-section"><h3 data-i18n="skills">Keterampilan</h3><div id="preview-skills" class="skill-list"></div></section>
 
-          <section class="cv-section"><h3>Pengalaman</h3><div id="preview-experiences"></div></section>
-          <section class="cv-section projects-section"><h3>Proyek Pilihan</h3><div id="preview-projects"></div></section>
-          <section class="cv-section"><h3>Prestasi</h3><ul id="preview-achievements" class="clean-list"></ul></section>
-          <section class="cv-section education"><h3>Pendidikan</h3><div id="preview-education"></div></section>
+          <section class="cv-section"><h3 data-i18n="experience">Pengalaman</h3><div id="preview-experiences"></div></section>
+          <section class="cv-section projects-section"><h3 data-i18n="selectedProjects">Proyek Pilihan</h3><div id="preview-projects"></div></section>
+          <section class="cv-section"><h3 data-i18n="achievements">Prestasi</h3><ul id="preview-achievements" class="clean-list"></ul></section>
+          <section class="cv-section education"><h3 data-i18n="education">Pendidikan</h3><div id="preview-education"></div></section>
         </article>
       </section>
     </main>
