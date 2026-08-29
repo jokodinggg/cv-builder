@@ -25,6 +25,22 @@
         </div>
 
         <form id="cv-form">
+          <fieldset class="cv-type-fieldset">
+            <legend>Tipe CV</legend>
+            <label><span>Pilih target lamaran</span>
+              <select id="cv-type" aria-label="Pilih tipe CV">
+                <option value="ai-engineer">AI Engineer</option>
+                <option value="web-developer">Web Developer</option>
+                <option value="full-stack-developer">Full-stack Developer</option>
+              </select>
+            </label>
+            <p class="help-text">Setiap tipe memiliki keterampilan, pengalaman, proyek, prestasi, dan pendidikan yang disimpan terpisah.</p>
+            <div class="add-cv-type">
+              <label><span>Tambah tipe CV baru</span><input id="new-cv-type" placeholder="Contoh: IoT Engineer" /></label>
+              <button class="secondary-button" id="add-cv-type" type="button">Tambah tipe</button>
+            </div>
+          </fieldset>
+
           <fieldset data-preview-target=".cv-header">
             <legend data-i18n="identity">Identitas</legend>
             <label><span data-i18n="fullName">Nama lengkap</span><input data-bind="name" value="Irfan Qobus Salim" /></label>
@@ -34,11 +50,6 @@
               <label>LinkedIn<input data-bind="linkedin" value="linkedin.com/in/irfanqs" /></label>
               <label>GitHub<input data-bind="github" value="github.com/irfanqs" /></label>
             </div>
-          </fieldset>
-
-          <fieldset data-preview-target="#preview-summary">
-            <legend data-i18n="profile">Profil singkat</legend>
-            <label><span data-i18n="summary">Ringkasan</span><textarea data-bind="summary" rows="7">Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada Artificial Intelligence, Computer Vision, Internet of Things (IoT), dan pengembangan perangkat lunak. Berpengalaman dalam pengembangan sistem object detection berbasis YOLO, deployment model AI pada edge device (Raspberry Pi dan Jetson Nano), serta integrasi sensor dan perangkat keras. Memiliki pengalaman dalam pengembangan aplikasi full-stack, machine learning, dan sistem berbasis Linux melalui berbagai proyek akademik dan profesional sebagai freelancer.</textarea></label>
           </fieldset>
 
           <fieldset data-preview-target="#preview-skills">
@@ -87,8 +98,6 @@ SMA Negeri 5 Semarang | 2018 — 2021 |</textarea></label>
               <a id="preview-github" href="#"><svg><use href="#icon-github"></use></svg><span>github.com/irfanqs</span></a>
             </div>
           </header>
-
-          <p id="preview-summary" class="summary"></p>
 
           <section class="cv-section"><h3 data-i18n="skills">Keterampilan</h3><div id="preview-skills" class="skill-list"></div></section>
 

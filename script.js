@@ -1,11 +1,18 @@
-const STORAGE_KEY = "jokoding-cv-builder-v3";
+const STORAGE_KEY = "jokoding-cv-builder-v5";
+const LEGACY_STORAGE_KEYS = ["jokoding-cv-builder-v4", "jokoding-cv-builder-v3"];
+const WEB_PROJECTS_VERSION = 2;
 let language = "id";
 const UI_COPY = {
-  id: { builderTitle:"Buat CV baru", builderSubtitle:"Ubah detail CV di bawah. Pratinjau akan diperbarui secara langsung.", identity:"Identitas", fullName:"Nama lengkap", profile:"Profil singkat", summary:"Ringkasan", skills:"Keterampilan", skillsHelp:"Buat kategori sendiri, lalu isi teknologi atau kemampuan yang relevan.", addSkill:"+ Tambah kategori keterampilan", experience:"Pengalaman", addExperience:"+ Tambah pengalaman", projects:"Proyek pilihan", selectedProjects:"Proyek Pilihan", addProject:"+ Tambah proyek", achievementEducation:"Prestasi & pendidikan", achievements:"Prestasi", education:"Pendidikan", readyToPrint:"Pratinjau siap dicetak", translateButton:"Translate to English" },
-  en: { builderTitle:"Create a new CV", builderSubtitle:"Edit the details below. The preview updates instantly.", identity:"Personal details", fullName:"Full name", profile:"Professional summary", summary:"Summary", skills:"Skills", skillsHelp:"Create your own categories, then list the relevant technologies or capabilities.", addSkill:"+ Add skill category", experience:"Experience", addExperience:"+ Add experience", projects:"Selected projects", selectedProjects:"Selected Projects", addProject:"+ Add project", achievementEducation:"Achievements & education", achievements:"Achievements", education:"Education", readyToPrint:"Preview ready to print", translateButton:"Switch to Indonesian" }
+  id: { builderTitle:"Buat CV baru", builderSubtitle:"Ubah detail CV di bawah. Pratinjau akan diperbarui secara langsung.", identity:"Identitas", fullName:"Nama lengkap", skills:"Keterampilan", skillsHelp:"Buat kategori sendiri, lalu isi teknologi atau kemampuan yang relevan.", addSkill:"+ Tambah kategori keterampilan", experience:"Pengalaman", addExperience:"+ Tambah pengalaman", projects:"Proyek pilihan", selectedProjects:"Proyek Pilihan", addProject:"+ Tambah proyek", achievementEducation:"Prestasi & pendidikan", achievements:"Prestasi", education:"Pendidikan", readyToPrint:"Pratinjau siap dicetak", translateButton:"Translate to English" },
+  en: { builderTitle:"Create a new CV", builderSubtitle:"Edit the details below. The preview updates instantly.", identity:"Personal details", fullName:"Full name", skills:"Skills", skillsHelp:"Create your own categories, then list the relevant technologies or capabilities.", addSkill:"+ Add skill category", experience:"Experience", addExperience:"+ Add experience", projects:"Selected projects", selectedProjects:"Selected Projects", addProject:"+ Add project", achievementEducation:"Achievements & education", achievements:"Achievements", education:"Education", readyToPrint:"Preview ready to print", translateButton:"Switch to Indonesian" }
 };
 
-let experiences = [
+const AI_ENGINEER_PROFILE = {
+  form: {
+    achievements: "Top 30 Ericsson Hackathon 2025\nTop 10 Hackathon Sawit Nasional 2025\nPenerima Pendanaan PKM-KC 2025",
+    education: "S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |"
+  },
+  experiences: [
   {
     title: "Full-stack Developer & AI Engineer",
     date: "November 2025 — Saat Ini",
@@ -18,9 +25,9 @@ let experiences = [
     company: "Kominfo Balai Monitor I Semarang | Internship On-Site",
     bullets: "Menyelesaikan permasalahan administrasi dan penyerahan dokumen antar pihak dengan website monitoring perjalanan dinas."
   }
-];
+  ],
 
-let projects = [
+  projects: [
   {
     title: "Sistem Penyerbuk Kelapa Sawit untuk Integrasi Drone",
     tech: "Python, YOLO, Raspberry Pi",
@@ -31,16 +38,76 @@ let projects = [
     tech: "Python, MobileNet, TensorFlow, OpenCV, ESP32, MQTT",
     bullets: "Mengembangkan sistem Computer Vision berbasis MobileNet untuk mengklasifikasikan sampah secara real-time ke dalam kategori organik dan anorganik.\nMengimplementasikan inference model menggunakan TensorFlow/Keras dan OpenCV, serta mengintegrasikan hasil prediksi dengan sistem embedded berbasis ESP32 melalui protokol MQTT.\nMengintegrasikan sensor ultrasonik, LCD, dan servo untuk membangun mekanisme pemilahan sampah otomatis berdasarkan hasil klasifikasi AI."
   }
-];
+  ],
 
-let skills = [
+  skills: [
   { category: "Bahasa Pemrograman", details: "Python, JavaScript, TypeScript, C/C++, HTML, CSS, Bash" },
   { category: "AI & Computer Vision", details: "YOLO, MobileNet, PyTorch, TensorFlow, OpenCV, Scikit-learn, Pandas, NumPy" },
   { category: "Web & Backend", details: "Next.js, Express.js, NestJS, REST API" },
   { category: "Database", details: "MySQL, PostgreSQL, Prisma" },
   { category: "IoT & Edge Computing", details: "Raspberry Pi, ESP32, Sensor & Actuator Integration" },
   { category: "Tools & Platform", details: "Git, Linux, Docker, n8n, Figma" }
-];
+  ]
+};
+
+const WEB_DEVELOPER_PROFILE = {
+  form: {
+    achievements: "Top 30 Ericsson Hackathon 2025\nTop 10 Hackathon Sawit Nasional 2025\nPenerima Pendanaan PKM-KC 2025",
+    education: "S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |"
+  },
+  experiences: [
+    { title: "Full-stack Developer", date: "November 2025 — Saat Ini", company: "Freelance", bullets: "Menyelesaikan lebih dari 50 proyek pengembangan perangkat lunak yang mencakup website, API, automation, dan integrasi layanan pihak ketiga.\nMengembangkan solusi dari tahap analisis kebutuhan, implementasi, hingga deployment untuk berbagai kebutuhan klien." },
+    { title: "Full-stack Developer", date: "November 2025 — Februari 2026", company: "Kominfo Balai Monitor I Semarang | Internship On-Site", bullets: "Mengembangkan website monitoring perjalanan dinas untuk menyelesaikan kebutuhan administrasi dan penyerahan dokumen antar pihak." }
+  ],
+  projects: [
+    { title: "Monitoring Dashboard Perjalanan Dinas", tech: "Next.js, TypeScript, Tailwind CSS, Express.js, Prisma, PostgreSQL", bullets: "Mengembangkan sistem monitoring workflow perjalanan dinas dengan 15 tahapan proses, termasuk alur LS dan Non-LS.\nMembangun dashboard, pelacakan progres, manajemen pengguna berbasis role, upload dokumen, serta fitur pencarian dan pengarsipan data.\nMengintegrasikan frontend Next.js dengan REST API Express dan database PostgreSQL melalui Prisma ORM." },
+    { title: "POS SaaS Multi-Tenant", tech: "React, Vite, Tailwind CSS, Fastify, Prisma, PostgreSQL, Redis, Midtrans", bullets: "Mengembangkan aplikasi Point of Sale berbasis SaaS dengan arsitektur multi-tenant dan dukungan multi-outlet.\nMembangun fitur manajemen produk, transaksi, inventori, pelanggan, karyawan, absensi, serta laporan penjualan dan profit.\nMengintegrasikan sistem pembayaran Midtrans untuk metode QRIS dan kartu." },
+    { title: "SIAKAD Gallery - Sistem Informasi KRS Mahasiswa", tech: "Laravel, PHP, MySQL, Blade", bullets: "Mengembangkan sistem informasi akademik untuk pengisian KRS, KHS, jadwal, dan manajemen data mahasiswa.\nMenerapkan akses berbasis peran untuk mahasiswa, dosen, dan admin, termasuk fitur input nilai dan pengelolaan mata kuliah.\nMendesain struktur halaman dan komponen Blade yang responsif untuk kebutuhan administrasi akademik." },
+    { title: "AbsensiSholat", tech: "Next.js, Supabase, PostgreSQL, QR Code", bullets: "Mengembangkan aplikasi absensi sholat berbasis QR untuk membantu guru memantau kehadiran siswa secara harian.\nMembangun dashboard guru, rekap absensi harian hingga bulanan, manajemen data siswa, dan import data CSV/Excel.\nMengintegrasikan Supabase untuk penyimpanan data dan pembaruan dashboard secara realtime." },
+    { title: "Mental Wellness Tracker", tech: "Next.js, TypeScript, Express.js, PostgreSQL, Prisma, NextAuth, face-api.js", bullets: "Mengembangkan aplikasi pencatatan mood, jurnal, target, dan rekomendasi aktivitas untuk pemantauan kesehatan mental.\nMengimplementasikan deteksi emosi real-time melalui webcam menggunakan face-api.js tanpa menyimpan data wajah pengguna.\nMembangun autentikasi, dashboard analitik, REST API, serta pengelolaan data menggunakan Prisma dan PostgreSQL." }
+  ],
+  skills: [
+    { category: "Bahasa Pemrograman", details: "JavaScript, TypeScript, Python, HTML, CSS, Bash" },
+    { category: "Frontend", details: "Next.js, React, HTML, CSS" },
+    { category: "Backend & API", details: "Node.js, Express.js, NestJS, REST API" },
+    { category: "Database", details: "MySQL, PostgreSQL, Prisma" },
+    { category: "Tools & Platform", details: "Git, Linux, Docker, Figma" }
+  ]
+};
+
+const FULL_STACK_DEVELOPER_PROFILE = {
+  form: {
+    achievements: "Top 30 Ericsson Hackathon 2025\nTop 10 Hackathon Sawit Nasional 2025\nPenerima Pendanaan PKM-KC 2025",
+    education: "S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |"
+  },
+  experiences: WEB_DEVELOPER_PROFILE.experiences.map(item => ({ ...item })),
+  projects: [
+    { title: "Website Monitoring Perjalanan Dinas", tech: "Next.js, TypeScript, PostgreSQL, Prisma", bullets: "Mengembangkan aplikasi web untuk memantau proses perjalanan dinas dan penyerahan dokumen.\nMembangun antarmuka responsif dan integrasi data untuk pelacakan status administrasi." },
+    { title: "Sistem Penyerbuk Kelapa Sawit untuk Integrasi Drone", tech: "Python, YOLO, Raspberry Pi, REST API", bullets: "Mengembangkan sistem Computer Vision berbasis YOLOv11 untuk mendeteksi kematangan bunga kelapa sawit secara real-time.\nMengintegrasikan model edge AI, sensor, aktuator, dan komponen perangkat lunak untuk mendukung otomasi penyerbukan." }
+  ],
+  skills: [
+    { category: "Bahasa Pemrograman", details: "JavaScript, TypeScript, Python, C/C++, HTML, CSS" },
+    { category: "Frontend & Backend", details: "Next.js, React, Express.js, NestJS, REST API" },
+    { category: "Database", details: "MySQL, PostgreSQL, Prisma" },
+    { category: "AI & IoT", details: "YOLO, OpenCV, Raspberry Pi, ESP32, MQTT" },
+    { category: "Tools & Platform", details: "Git, Linux, Docker, Figma" }
+  ]
+};
+
+let profiles = {
+  "ai-engineer": AI_ENGINEER_PROFILE,
+  "web-developer": WEB_DEVELOPER_PROFILE,
+  "full-stack-developer": FULL_STACK_DEVELOPER_PROFILE
+};
+let profileNames = {
+  "ai-engineer": "AI Engineer",
+  "web-developer": "Web Developer",
+  "full-stack-developer": "Full-stack Developer"
+};
+let selectedProfile = "ai-engineer";
+let experiences = profiles[selectedProfile].experiences;
+let projects = profiles[selectedProfile].projects;
+let skills = profiles[selectedProfile].skills;
 
 const byId = id => document.getElementById(id);
 const escapeHtml = value => String(value ?? "").replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[char]));
@@ -76,22 +143,58 @@ function renderEditor(type) {
 function persistState() {
   try {
     const form = Object.fromEntries([...document.querySelectorAll("[data-bind]")].map(input => [input.dataset.bind, input.value]));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ form, experiences, projects, skills, language }));
+    const personal = Object.fromEntries(["name", "email", "whatsapp", "linkedin", "github"].map(key => [key, form[key]]));
+    profiles[selectedProfile] = { form: { achievements: form.achievements, education: form.education }, experiences, projects, skills };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION }));
   } catch (_) { /* Penyimpanan lokal tidak tersedia; CV tetap dapat digunakan. */ }
+}
+
+function renderProfileOptions() {
+  const select = byId("cv-type");
+  select.innerHTML = Object.entries(profileNames)
+    .filter(([id]) => profiles[id])
+    .map(([id, name]) => `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`)
+    .join("");
+  select.value = selectedProfile;
+}
+
+function useProfile(profileId) {
+  selectedProfile = profileId;
+  const profile = profiles[selectedProfile];
+  experiences = profile.experiences;
+  projects = profile.projects;
+  skills = profile.skills;
+  byId("cv-type").value = selectedProfile;
+  ["achievements", "education"].forEach(key => {
+    document.querySelector(`[data-bind="${key}"]`).value = profile.form[key] || "";
+  });
 }
 
 function restoreState() {
   try {
-    const state = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const savedState = localStorage.getItem(STORAGE_KEY) || LEGACY_STORAGE_KEYS.map(key => localStorage.getItem(key)).find(Boolean);
+    const state = JSON.parse(savedState);
     if (!state) return;
-    if (Array.isArray(state.experiences)) experiences = state.experiences;
-    if (Array.isArray(state.projects)) projects = state.projects;
-    if (Array.isArray(state.skills)) skills = state.skills;
+    if (state.profiles && typeof state.profiles === "object") profiles = state.profiles;
+    if (state.profileNames && typeof state.profileNames === "object") profileNames = state.profileNames;
+    if (state.selectedProfile && profiles[state.selectedProfile]) selectedProfile = state.selectedProfile;
+    if (Array.isArray(state.experiences)) {
+      profiles[selectedProfile] = {
+        form: { achievements: state.form?.achievements || "", education: state.form?.education || "" },
+        experiences: state.experiences,
+        projects: Array.isArray(state.projects) ? state.projects : projects,
+        skills: Array.isArray(state.skills) ? state.skills : skills
+      };
+    }
+    if (state.webProjectsVersion !== WEB_PROJECTS_VERSION && profiles["web-developer"]) {
+      profiles["web-developer"].projects = WEB_DEVELOPER_PROFILE.projects.map(project => ({ ...project }));
+    }
     if (state.language === "en" || state.language === "id") language = state.language;
-    Object.entries(state.form || {}).forEach(([key, value]) => {
+    Object.entries(state.personal || state.form || {}).forEach(([key, value]) => {
       const input = document.querySelector(`[data-bind="${key}"]`);
       if (input) input.value = value;
     });
+    useProfile(selectedProfile);
   } catch (_) { /* Jika data lama tidak valid, gunakan isi default. */ }
 }
 
@@ -121,7 +224,7 @@ async function translateCv() {
   button.disabled = true;
   button.textContent = target === "en" ? "Translating…" : "Menerjemahkan…";
   try {
-    const boundKeys = ["summary", "achievements", "education"];
+    const boundKeys = ["achievements", "education"];
     const textFields = boundKeys.map(key => document.querySelector(`[data-bind="${key}"]`));
     const allTasks = [
       ...textFields.map(field => translateText(field.value, source, target)),
@@ -208,8 +311,38 @@ byId("add-experience").addEventListener("click", () => { experiences.push({ titl
 byId("add-project").addEventListener("click", () => { projects.push({ title: "Nama proyek", tech: "Teknologi", bullets: "Jelaskan capaian proyek." }); renderEditor("project"); renderPreview(); });
 byId("print-button").addEventListener("click", () => window.print());
 byId("translate-button").addEventListener("click", translateCv);
+byId("cv-type").addEventListener("change", event => {
+  persistState();
+  useProfile(event.target.value);
+  renderEditor("skill");
+  renderEditor("experience");
+  renderEditor("project");
+  renderPreview();
+});
+byId("add-cv-type").addEventListener("click", () => {
+  const input = byId("new-cv-type");
+  const name = input.value.trim();
+  if (!name) return;
+  if (Object.values(profileNames).some(profileName => profileName.toLowerCase() === name.toLowerCase())) {
+    alert("Tipe CV dengan nama tersebut sudah ada.");
+    return;
+  }
+  persistState();
+  const id = `custom-${Date.now()}`;
+  profiles[id] = JSON.parse(JSON.stringify(profiles[selectedProfile]));
+  profileNames[id] = name;
+  input.value = "";
+  useProfile(id);
+  renderProfileOptions();
+  renderEditor("skill");
+  renderEditor("experience");
+  renderEditor("project");
+  renderPreview();
+});
 
 restoreState();
+useProfile(selectedProfile);
+renderProfileOptions();
 renderEditor("skill");
 renderEditor("experience");
 renderEditor("project");
