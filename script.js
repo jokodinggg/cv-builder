@@ -94,15 +94,41 @@ const FULL_STACK_DEVELOPER_PROFILE = {
   ]
 };
 
+const IOT_ENGINEER_PROFILE = {
+  form: {
+    achievements: "Top 30 Ericsson Hackathon 2025\nTop 10 Hackathon Sawit Nasional 2025\nPenerima Pendanaan PKM-KC 2025",
+    education: "S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |"
+  },
+  experiences: [
+    { title: "Full-stack Developer & AI Engineer", date: "November 2025 — Saat Ini", company: "Freelance", bullets: "Menyelesaikan proyek perangkat lunak yang mencakup IoT, edge AI, integrasi API, dan otomasi.\nMengembangkan solusi dari analisis kebutuhan dan integrasi perangkat hingga implementasi aplikasi pendukung." },
+    { title: "Full-stack Developer", date: "November 2025 — Februari 2026", company: "Kominfo Balai Monitor I Semarang | Internship On-Site", bullets: "Mengembangkan website monitoring perjalanan dinas untuk mendukung pemantauan workflow administrasi dan penyerahan dokumen." }
+  ],
+  projects: [
+    { title: "Child Monitoring Wearable IoT", tech: "Python, Antares IoT, Telegram Bot API, Webhook, SQLite, Geolocation", bullets: "Mengembangkan platform monitoring anak yang menerima data perangkat wearable melalui webhook Antares IoT.\nMembangun alur notifikasi Telegram untuk monitoring lokasi, deteksi kondisi terjatuh, dan pemisahan akses parent–teacher.\nMerancang mapping parent–child–teacher, dukungan multiple children, device-specific endpoint, serta health-check endpoint." },
+    { title: "Sistem Pemilah Sampah Otomatis", tech: "Python, MobileNet, TensorFlow, OpenCV, ESP32, MQTT", bullets: "Mengembangkan sistem Computer Vision untuk klasifikasi sampah organik dan anorganik secara real-time.\nMengirim hasil inferensi ke sistem embedded ESP32 melalui MQTT untuk mengendalikan sensor, LCD, dan servo.\nMengintegrasikan model AI dengan perangkat keras dan aktuator untuk membangun alur pemilahan otomatis." },
+    { title: "Sistem Penyerbuk Kelapa Sawit untuk Integrasi Drone", tech: "Python, YOLOv11, Raspberry Pi 5, ToF VL53L0X, Sensor, Aktuator", bullets: "Mengembangkan sistem edge AI untuk mendeteksi kematangan bunga betina kelapa sawit secara real-time sebagai dasar aktivasi mekanisme penyerbukan.\nMelakukan training, evaluasi, optimasi, dan deployment object detection pada Raspberry Pi 5.\nMengintegrasikan kamera, sensor ToF, volume pollen monitoring, dan aktuator penyemprotan untuk mendukung otomasi perangkat." }
+  ],
+  skills: [
+    { category: "Bahasa Pemrograman", details: "Python, C/C++, JavaScript, TypeScript, Bash" },
+    { category: "Embedded & Edge Computing", details: "ESP32, Raspberry Pi 5, Sensor, Aktuator, Edge AI" },
+    { category: "IoT & Communication", details: "MQTT, Antares IoT, Webhook, Telegram Bot API, REST API" },
+    { category: "AI & Computer Vision", details: "YOLOv11, MobileNet, TensorFlow, OpenCV, NumPy" },
+    { category: "Data & Backend", details: "SQLite, PostgreSQL, Python Web Services" },
+    { category: "Tools & Platform", details: "Git, Linux, Docker, Geolocation, Figma" }
+  ]
+};
+
 let profiles = {
   "ai-engineer": AI_ENGINEER_PROFILE,
   "web-developer": WEB_DEVELOPER_PROFILE,
-  "full-stack-developer": FULL_STACK_DEVELOPER_PROFILE
+  "full-stack-developer": FULL_STACK_DEVELOPER_PROFILE,
+  "iot-engineer": IOT_ENGINEER_PROFILE
 };
 let profileNames = {
   "ai-engineer": "AI Engineer",
   "web-developer": "Web Developer",
-  "full-stack-developer": "Full-stack Developer"
+  "full-stack-developer": "Full-stack Developer",
+  "iot-engineer": "IoT Engineer"
 };
 let selectedProfile = "ai-engineer";
 let experiences = profiles[selectedProfile].experiences;
