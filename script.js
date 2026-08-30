@@ -130,7 +130,7 @@ let profileNames = {
   "full-stack-developer": "Full-stack Developer",
   "iot-engineer": "IoT Engineer"
 };
-let selectedProfile = "ai-engineer";
+let selectedProfile = "iot-engineer";
 let experiences = profiles[selectedProfile].experiences;
 let projects = profiles[selectedProfile].projects;
 let skills = profiles[selectedProfile].skills;
