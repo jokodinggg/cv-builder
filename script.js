@@ -1,6 +1,7 @@
 const STORAGE_KEY = "jokoding-cv-builder-v6";
 const LEGACY_STORAGE_KEYS = ["jokoding-cv-builder-v4", "jokoding-cv-builder-v3"];
 const WEB_PROJECTS_VERSION = 2;
+const AI_LLM_PROFILE_VERSION = 3;
 let language = "id";
 const UI_COPY = {
   id: { builderTitle:"Buat CV baru", builderSubtitle:"Ubah detail CV di bawah. Pratinjau akan diperbarui secara langsung.", identity:"Identitas", fullName:"Nama lengkap", skills:"Keterampilan", skillsHelp:"Buat kategori sendiri, lalu isi teknologi atau kemampuan yang relevan.", addSkill:"+ Tambah kategori keterampilan", experience:"Pengalaman", addExperience:"+ Tambah pengalaman", projects:"Proyek pilihan", selectedProjects:"Proyek Pilihan", addProject:"+ Tambah proyek", achievementEducation:"Prestasi & pendidikan", achievements:"Prestasi", education:"Pendidikan", readyToPrint:"Pratinjau siap dicetak", translateButton:"Translate to English" },
@@ -76,6 +77,26 @@ const AI_ENGINEER_LLM_PROFILE = {
     bullets: "Mengembangkan platform Generative AI full-stack untuk text-to-image, image-to-image, image-to-video, dan text-to-speech menggunakan Gemini API.\nMembangun backend berbasis NestJS dengan PostgreSQL, Prisma, Redis, dan Bull Queue untuk mengelola proses generasi AI secara asynchronous.\nMengimplementasikan autentikasi JWT, bcrypt, sistem credits, generation history, rate limiting, serta integrasi Cloudinary untuk penyimpanan hasil generasi."
   },
   {
+    title: "CareerAI RAG Assistant",
+    tech: "Python, Flask, LangChain, OpenAI Embeddings, ChromaDB",
+    bullets: "Mengembangkan aplikasi career assistant yang menggunakan Retrieval-Augmented Generation untuk menghasilkan jawaban berbasis knowledge base karier dan skill matching.\nMembangun pipeline indexing dengan OpenAI embeddings dan persistent ChromaDB vector store, termasuk history-aware query rewriting dan retrieval context yang relevan.\nMenggunakan prompt terarah untuk menjaga jawaban LLM tetap grounded pada konteks yang tersedia."
+  },
+  {
+    title: "RAG Ticket Classifier",
+    tech: "Python, Flask, OpenAI Embeddings, FAISS, NumPy, Pandas",
+    bullets: "Mengembangkan aplikasi klasifikasi tiket IT dari file Excel dengan retrieval contoh tiket historis menggunakan FAISS dan OpenAI embeddings.\nMembangun semantic cache dan deduplikasi vector entry berbasis normalized-text hash untuk mengurangi pemanggilan LLM berulang.\nMengintegrasikan context retrieval ke prompt klasifikasi terkontrol dan mengekspor hasil klasifikasi ke Excel."
+  },
+  {
+    title: "Siggytarius AI — Contribution",
+    tech: "Next.js 14, TypeScript, Groq API, Custom RAG, Embeddings, SSE",
+    bullets: "Berkontribusi pada chatbot berbasis RAG yang mengambil konteks dari dokumentasi Ritual Network sebelum menghasilkan jawaban.\nBerkontribusi pada pipeline chunking, embeddings, retrieval, dan integrasi respons streaming melalui Server-Sent Events.\nKontribusi tercatat pada repository kolaborasi jepannyaa/Siggytarius-AI."
+  },
+  {
+    title: "ConvBot — Contribution",
+    tech: "Python, Groq API, Voice Recognition, EdgeTTS",
+    bullets: "Berkontribusi pada asisten percakapan berbasis suara yang mendukung natural chat, web search, text-to-speech, dan kontrol sistem dalam bahasa Indonesia.\nMengembangkan atau memperbaiki fitur pada repository kolaborasi/fork lexiiyz/ConvBot."
+  },
+  {
     title: "Sistem Penyerbuk Kelapa Sawit untuk Integrasi Drone",
     tech: "Python, YOLOv11, Raspberry Pi 5, Computer Vision, Sensor, Aktuator",
     bullets: "Mengembangkan solusi AI/ML untuk mendeteksi kematangan bunga betina kelapa sawit secara real-time sebagai dasar otomasi proses bisnis di bidang perkebunan.\nMelakukan training, evaluasi, optimasi, dan deployment model object detection pada edge device Raspberry Pi 5.\nMengintegrasikan kamera, sensor ToF, monitoring volume pollen, dan aktuator untuk mendukung sistem otomasi."
@@ -88,7 +109,8 @@ const AI_ENGINEER_LLM_PROFILE = {
   ],
   skills: [
   { category: "Programming", details: "Python, JavaScript, TypeScript, C/C++, Bash" },
-  { category: "Generative AI & LLM", details: "Gemini API, AI Application Integration, Prompt-based Generation" },
+  { category: "Generative AI & LLM", details: "Gemini API, Groq API, OpenAI API, AI Application Integration, Prompt Engineering" },
+  { category: "RAG & Information Retrieval", details: "LangChain, ChromaDB, FAISS, OpenAI Embeddings, Vector Search, Semantic Retrieval" },
   { category: "AI & Machine Learning", details: "YOLOv11, MobileNet, TensorFlow, OpenCV, Scikit-learn, NumPy, Pandas" },
   { category: "Backend & Data", details: "NestJS, Next.js, REST API, PostgreSQL, MySQL, SQLite, Prisma" },
   { category: "Systems & Deployment", details: "Linux, Docker, Redis, Bull Queue, Git" },
@@ -221,7 +243,7 @@ function currentState() {
   const form = Object.fromEntries([...document.querySelectorAll("[data-bind]")].map(input => [input.dataset.bind, input.value]));
   const personal = Object.fromEntries(["name", "email", "whatsapp", "linkedin", "github"].map(key => [key, form[key]]));
   profiles[selectedProfile] = { form: { achievements: form.achievements, education: form.education }, experiences, projects, skills };
-  return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION };
+  return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION, aiLlmProfileVersion: AI_LLM_PROFILE_VERSION };
 }
 
 async function saveStateToServer(state = currentState()) {
@@ -270,7 +292,7 @@ function restoreState(savedState = null) {
     if (!state) return;
     if (state.profiles && typeof state.profiles === "object") profiles = { ...profiles, ...state.profiles };
     if (state.profileNames && typeof state.profileNames === "object") profileNames = { ...profileNames, ...state.profileNames };
-    if (!profiles["ai-engineer-llm"]) {
+    if (!profiles["ai-engineer-llm"] || state.aiLlmProfileVersion !== AI_LLM_PROFILE_VERSION) {
       profiles["ai-engineer-llm"] = JSON.parse(JSON.stringify(AI_ENGINEER_LLM_PROFILE));
       profileNames["ai-engineer-llm"] = "AI Engineer (LLM)";
       selectedProfile = "ai-engineer-llm";
