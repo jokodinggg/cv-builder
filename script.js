@@ -50,6 +50,52 @@ const AI_ENGINEER_PROFILE = {
   ]
 };
 
+const AI_ENGINEER_LLM_PROFILE = {
+  form: {
+    achievements: "Top 30 Ericsson Hackathon 2025\nTop 10 Hackathon Sawit Nasional 2025\nPenerima Pendanaan PKM-KC 2025",
+    education: "S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |"
+  },
+  experiences: [
+  {
+    title: "Full-stack Developer & AI Engineer",
+    date: "November 2025 — Saat Ini",
+    company: "Freelance — Jokiproyek",
+    bullets: "Mengerjakan proyek berbasis kebutuhan klien yang mencakup Generative AI, machine learning, computer vision, web application, IoT, dan integrasi API.\nMengembangkan solusi dari analisis kebutuhan, implementasi, integrasi layanan AI, pengujian, hingga deployment untuk kebutuhan individu dan bisnis."
+  },
+  {
+    title: "Full-stack Developer",
+    date: "November 2025 — Februari 2026",
+    company: "Kominfo Balai Monitor I Semarang | Internship On-Site",
+    bullets: "Mengembangkan website monitoring perjalanan dinas untuk mendukung pemantauan workflow administrasi dan penyerahan dokumen."
+  }
+  ],
+  projects: [
+  {
+    title: "AI Generation Platform",
+    tech: "NestJS, Next.js 14, TypeScript, PostgreSQL, Prisma, Redis, Bull Queue, Gemini API, Cloudinary, Docker",
+    bullets: "Mengembangkan platform Generative AI full-stack untuk text-to-image, image-to-image, image-to-video, dan text-to-speech menggunakan Gemini API.\nMembangun backend berbasis NestJS dengan PostgreSQL, Prisma, Redis, dan Bull Queue untuk mengelola proses generasi AI secara asynchronous.\nMengimplementasikan autentikasi JWT, bcrypt, sistem credits, generation history, rate limiting, serta integrasi Cloudinary untuk penyimpanan hasil generasi."
+  },
+  {
+    title: "Sistem Penyerbuk Kelapa Sawit untuk Integrasi Drone",
+    tech: "Python, YOLOv11, Raspberry Pi 5, Computer Vision, Sensor, Aktuator",
+    bullets: "Mengembangkan solusi AI/ML untuk mendeteksi kematangan bunga betina kelapa sawit secara real-time sebagai dasar otomasi proses bisnis di bidang perkebunan.\nMelakukan training, evaluasi, optimasi, dan deployment model object detection pada edge device Raspberry Pi 5.\nMengintegrasikan kamera, sensor ToF, monitoring volume pollen, dan aktuator untuk mendukung sistem otomasi."
+  },
+  {
+    title: "Child Monitoring Wearable IoT",
+    tech: "Python, Antares IoT, Telegram Bot API, Webhook, SQLite, Geolocation",
+    bullets: "Mengembangkan platform monitoring berbasis data perangkat wearable dengan integrasi webhook Antares IoT dan Telegram Bot API.\nMembangun alur notifikasi untuk monitoring lokasi dan deteksi kondisi terjatuh dengan akses berbeda bagi parent dan teacher."
+  }
+  ],
+  skills: [
+  { category: "Programming", details: "Python, JavaScript, TypeScript, C/C++, Bash" },
+  { category: "Generative AI & LLM", details: "Gemini API, AI Application Integration, Prompt-based Generation" },
+  { category: "AI & Machine Learning", details: "YOLOv11, MobileNet, TensorFlow, OpenCV, Scikit-learn, NumPy, Pandas" },
+  { category: "Backend & Data", details: "NestJS, Next.js, REST API, PostgreSQL, MySQL, SQLite, Prisma" },
+  { category: "Systems & Deployment", details: "Linux, Docker, Redis, Bull Queue, Git" },
+  { category: "IoT & Edge Computing", details: "Raspberry Pi 5, ESP32, MQTT, Antares IoT, Sensor & Actuator Integration" }
+  ]
+};
+
 const WEB_DEVELOPER_PROFILE = {
   form: {
     achievements: "Top 30 Ericsson Hackathon 2025\nTop 10 Hackathon Sawit Nasional 2025\nPenerima Pendanaan PKM-KC 2025",
@@ -120,17 +166,19 @@ const IOT_ENGINEER_PROFILE = {
 
 let profiles = {
   "ai-engineer": AI_ENGINEER_PROFILE,
+  "ai-engineer-llm": AI_ENGINEER_LLM_PROFILE,
   "web-developer": WEB_DEVELOPER_PROFILE,
   "full-stack-developer": FULL_STACK_DEVELOPER_PROFILE,
   "iot-engineer": IOT_ENGINEER_PROFILE
 };
 let profileNames = {
   "ai-engineer": "AI Engineer",
+  "ai-engineer-llm": "AI Engineer (LLM)",
   "web-developer": "Web Developer",
   "full-stack-developer": "Full-stack Developer",
   "iot-engineer": "IoT Engineer"
 };
-let selectedProfile = "iot-engineer";
+let selectedProfile = "ai-engineer-llm";
 let experiences = profiles[selectedProfile].experiences;
 let projects = profiles[selectedProfile].projects;
 let skills = profiles[selectedProfile].skills;
@@ -220,9 +268,15 @@ function restoreState(savedState = null) {
     const rawState = savedState || localStorage.getItem(STORAGE_KEY) || LEGACY_STORAGE_KEYS.map(key => localStorage.getItem(key)).find(Boolean);
     const state = typeof rawState === "string" ? JSON.parse(rawState) : rawState;
     if (!state) return;
-    if (state.profiles && typeof state.profiles === "object") profiles = state.profiles;
-    if (state.profileNames && typeof state.profileNames === "object") profileNames = state.profileNames;
-    if (state.selectedProfile && profiles[state.selectedProfile]) selectedProfile = state.selectedProfile;
+    if (state.profiles && typeof state.profiles === "object") profiles = { ...profiles, ...state.profiles };
+    if (state.profileNames && typeof state.profileNames === "object") profileNames = { ...profileNames, ...state.profileNames };
+    if (!profiles["ai-engineer-llm"]) {
+      profiles["ai-engineer-llm"] = JSON.parse(JSON.stringify(AI_ENGINEER_LLM_PROFILE));
+      profileNames["ai-engineer-llm"] = "AI Engineer (LLM)";
+      selectedProfile = "ai-engineer-llm";
+    } else if (state.selectedProfile && profiles[state.selectedProfile]) {
+      selectedProfile = state.selectedProfile;
+    }
     if (Array.isArray(state.experiences)) {
       profiles[selectedProfile] = {
         form: { achievements: state.form?.achievements || "", education: state.form?.education || "" },
@@ -340,7 +394,7 @@ async function loadServerState() {
       renderPreview();
     }
     serverStateReady = true;
-    if (!state) persistState();
+    persistState();
   } catch (error) {
     serverStateReady = true;
     console.warn("SQLite storage unavailable; using browser local storage.", error);
