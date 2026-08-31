@@ -176,6 +176,11 @@ function currentState() {
   return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION };
 }
 
+async function saveStateToServer(state = currentState()) {
+  const response = await fetch("/api/state", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(state) });
+  if (!response.ok) throw new Error(`State save failed: ${response.status}`);
+}
+
 function persistState() {
   try {
     const state = currentState();
@@ -183,7 +188,7 @@ function persistState() {
     if (!serverStateReady) return;
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
-      fetch("/api/state", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(state) })
+      saveStateToServer(state)
         .catch(error => console.warn("Server-side CV storage unavailable; local storage remains active.", error));
     }, 250);
   } catch (_) { /* Penyimpanan lokal tidak tersedia; CV tetap dapat digunakan. */ }
@@ -371,7 +376,22 @@ document.addEventListener("click", event => {
 byId("add-skill").addEventListener("click", () => { skills.push({ category: "Kategori keterampilan", details: "Skill 1, Skill 2" }); renderEditor("skill"); renderPreview(); });
 byId("add-experience").addEventListener("click", () => { experiences.push({ title: "Jabatan", date: "Tahun — Tahun", company: "Perusahaan", bullets: "Jelaskan pencapaian utama." }); renderEditor("experience"); renderPreview(); });
 byId("add-project").addEventListener("click", () => { projects.push({ title: "Nama proyek", tech: "Teknologi", bullets: "Jelaskan capaian proyek." }); renderEditor("project"); renderPreview(); });
-byId("print-button").addEventListener("click", () => window.print());
+byId("print-button").addEventListener("click", async () => {
+  const button = byId("print-button");
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = "Menyimpan…";
+  try {
+    if (serverStateReady) await saveStateToServer();
+    else persistState();
+  } catch (error) {
+    console.warn("Could not save before printing; continuing with browser print.", error);
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+    window.print();
+  }
+});
 byId("translate-button").addEventListener("click", translateCv);
 byId("cv-type").addEventListener("change", event => {
   persistState();
