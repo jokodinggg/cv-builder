@@ -166,12 +166,26 @@ function renderEditor(type) {
   }).join("");
 }
 
+let saveTimer = null;
+let serverStateReady = false;
+
+function currentState() {
+  const form = Object.fromEntries([...document.querySelectorAll("[data-bind]")].map(input => [input.dataset.bind, input.value]));
+  const personal = Object.fromEntries(["name", "email", "whatsapp", "linkedin", "github"].map(key => [key, form[key]]));
+  profiles[selectedProfile] = { form: { achievements: form.achievements, education: form.education }, experiences, projects, skills };
+  return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION };
+}
+
 function persistState() {
   try {
-    const form = Object.fromEntries([...document.querySelectorAll("[data-bind]")].map(input => [input.dataset.bind, input.value]));
-    const personal = Object.fromEntries(["name", "email", "whatsapp", "linkedin", "github"].map(key => [key, form[key]]));
-    profiles[selectedProfile] = { form: { achievements: form.achievements, education: form.education }, experiences, projects, skills };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION }));
+    const state = currentState();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (!serverStateReady) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      fetch("/api/state", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(state) })
+        .catch(error => console.warn("Server-side CV storage unavailable; local storage remains active.", error));
+    }, 250);
   } catch (_) { /* Penyimpanan lokal tidak tersedia; CV tetap dapat digunakan. */ }
 }
 
@@ -196,10 +210,10 @@ function useProfile(profileId) {
   });
 }
 
-function restoreState() {
+function restoreState(savedState = null) {
   try {
-    const savedState = localStorage.getItem(STORAGE_KEY) || LEGACY_STORAGE_KEYS.map(key => localStorage.getItem(key)).find(Boolean);
-    const state = JSON.parse(savedState);
+    const rawState = savedState || localStorage.getItem(STORAGE_KEY) || LEGACY_STORAGE_KEYS.map(key => localStorage.getItem(key)).find(Boolean);
+    const state = typeof rawState === "string" ? JSON.parse(rawState) : rawState;
     if (!state) return;
     if (state.profiles && typeof state.profiles === "object") profiles = state.profiles;
     if (state.profileNames && typeof state.profileNames === "object") profileNames = state.profileNames;
@@ -306,6 +320,28 @@ function renderPreview() {
   persistState();
 }
 
+async function loadServerState() {
+  try {
+    const response = await fetch("/api/state", { cache: "no-store" });
+    if (!response.ok) throw new Error(`State request failed: ${response.status}`);
+    const state = await response.json();
+    if (state && state.profiles) {
+      restoreState(state);
+      useProfile(selectedProfile);
+      renderProfileOptions();
+      renderEditor("skill");
+      renderEditor("experience");
+      renderEditor("project");
+      renderPreview();
+    }
+    serverStateReady = true;
+    if (!state) persistState();
+  } catch (error) {
+    serverStateReady = true;
+    console.warn("SQLite storage unavailable; using browser local storage.", error);
+  }
+}
+
 function updateRepeat(event) {
   const input = event.target;
   if (!input.dataset.type || !input.dataset.key) return;
@@ -373,3 +409,4 @@ renderEditor("skill");
 renderEditor("experience");
 renderEditor("project");
 renderPreview();
+loadServerState();

@@ -1,0 +1,4 @@
+cv_builder.sqlite3
+cv_builder.sqlite3-*
+__pycache__/
+*.pyc
