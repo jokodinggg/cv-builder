@@ -4,8 +4,8 @@ const WEB_PROJECTS_VERSION = 2;
 const AI_LLM_PROFILE_VERSION = 4;
 let language = "id";
 const UI_COPY = {
-  id: { builderTitle:"Buat CV baru", builderSubtitle:"Ubah detail CV di bawah. Pratinjau akan diperbarui secara langsung.", identity:"Identitas", fullName:"Nama lengkap", skills:"Keterampilan", skillsHelp:"Buat kategori sendiri, lalu isi teknologi atau kemampuan yang relevan.", addSkill:"+ Tambah kategori keterampilan", experience:"Pengalaman", addExperience:"+ Tambah pengalaman", projects:"Proyek pilihan", selectedProjects:"Proyek Pilihan", addProject:"+ Tambah proyek", achievementEducation:"Prestasi & pendidikan", achievements:"Prestasi", education:"Pendidikan", readyToPrint:"Pratinjau siap dicetak", translateButton:"Translate to English" },
-  en: { builderTitle:"Create a new CV", builderSubtitle:"Edit the details below. The preview updates instantly.", identity:"Personal details", fullName:"Full name", skills:"Skills", skillsHelp:"Create your own categories, then list the relevant technologies or capabilities.", addSkill:"+ Add skill category", experience:"Experience", addExperience:"+ Add experience", projects:"Selected projects", selectedProjects:"Selected Projects", addProject:"+ Add project", achievementEducation:"Achievements & education", achievements:"Achievements", education:"Education", readyToPrint:"Preview ready to print", translateButton:"Switch to Indonesian" }
+  id: { builderTitle:"Buat CV baru", builderSubtitle:"Ubah detail CV di bawah. Pratinjau akan diperbarui secara langsung.", identity:"Identitas", fullName:"Nama lengkap", skills:"Keterampilan", skillsHelp:"Buat kategori sendiri, lalu isi teknologi atau kemampuan yang relevan.", addSkill:"+ Tambah kategori keterampilan", experience:"Pengalaman", addExperience:"+ Tambah pengalaman", projects:"Proyek pilihan", selectedProjects:"Proyek Pilihan", addProject:"+ Tambah proyek", achievementEducation:"Prestasi & pendidikan", achievements:"Prestasi", education:"Pendidikan", readyToPrint:"Pratinjau siap dicetak", saveProfile:"Simpan Profil", translateButton:"Translate to English" },
+  en: { builderTitle:"Create a new CV", builderSubtitle:"Edit the details below. The preview updates instantly.", identity:"Personal details", fullName:"Full name", skills:"Skills", skillsHelp:"Create your own categories, then list the relevant technologies or capabilities.", addSkill:"+ Add skill category", experience:"Experience", addExperience:"+ Add experience", projects:"Selected projects", selectedProjects:"Selected Projects", addProject:"+ Add project", achievementEducation:"Achievements & education", achievements:"Achievements", education:"Education", readyToPrint:"Preview ready to print", saveProfile:"Save Profile", translateButton:"Switch to Indonesian" }
 };
 
 const AI_ENGINEER_PROFILE = {
@@ -458,6 +458,29 @@ document.addEventListener("click", event => {
 byId("add-skill").addEventListener("click", () => { skills.push({ category: "Kategori keterampilan", details: "Skill 1, Skill 2" }); renderEditor("skill"); renderPreview(); });
 byId("add-experience").addEventListener("click", () => { experiences.push({ title: "Jabatan", date: "Tahun — Tahun", company: "Perusahaan", bullets: "Jelaskan pencapaian utama." }); renderEditor("experience"); renderPreview(); });
 byId("add-project").addEventListener("click", () => { projects.push({ title: "Nama proyek", tech: "Teknologi", bullets: "Jelaskan capaian proyek." }); renderEditor("project"); renderPreview(); });
+async function saveProfile() {
+  const button = byId("save-button");
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = language === "en" ? "Saving…" : "Menyimpan…";
+  try {
+    const state = currentState();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    await saveStateToServer(state);
+    button.textContent = language === "en" ? "Saved ✓" : "Tersimpan ✓";
+    setTimeout(() => {
+      button.textContent = UI_COPY[language].saveProfile;
+    }, 1800);
+  } catch (error) {
+    button.textContent = originalText;
+    alert(language === "en" ? "The profile could not be saved to the server." : "Profil tidak dapat disimpan ke server.");
+    console.error(error);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+byId("save-button").addEventListener("click", saveProfile);
 byId("print-button").addEventListener("click", async () => {
   const button = byId("print-button");
   const originalText = button.textContent;
