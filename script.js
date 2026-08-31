@@ -1,7 +1,7 @@
 const STORAGE_KEY = "jokoding-cv-builder-v6";
 const LEGACY_STORAGE_KEYS = ["jokoding-cv-builder-v4", "jokoding-cv-builder-v3"];
 const WEB_PROJECTS_VERSION = 2;
-const AI_LLM_PROFILE_VERSION = 3;
+const AI_LLM_PROFILE_VERSION = 4;
 let language = "id";
 const UI_COPY = {
   id: { builderTitle:"Buat CV baru", builderSubtitle:"Ubah detail CV di bawah. Pratinjau akan diperbarui secara langsung.", identity:"Identitas", fullName:"Nama lengkap", skills:"Keterampilan", skillsHelp:"Buat kategori sendiri, lalu isi teknologi atau kemampuan yang relevan.", addSkill:"+ Tambah kategori keterampilan", experience:"Pengalaman", addExperience:"+ Tambah pengalaman", projects:"Proyek pilihan", selectedProjects:"Proyek Pilihan", addProject:"+ Tambah proyek", achievementEducation:"Prestasi & pendidikan", achievements:"Prestasi", education:"Pendidikan", readyToPrint:"Pratinjau siap dicetak", translateButton:"Translate to English" },
@@ -57,6 +57,12 @@ const AI_ENGINEER_LLM_PROFILE = {
     education: "S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |"
   },
   experiences: [
+  {
+    title: "Senior Researcher",
+    date: "Maret 2024 — Saat Ini",
+    company: "Avalon AI Group (PT. Automasi Visi Analitika Optima)",
+    bullets: "Melakukan riset mendalam mengenai Large Language Models (LLM) dan Computer Vision untuk mengembangkan kapabilitas AI.\nBerkolaborasi dengan tim lintas fungsi untuk mengintegrasikan hasil riset ke dalam aplikasi praktis.\nMengikuti perkembangan teknologi dan tren AI terbaru untuk meningkatkan metodologi penelitian."
+  },
   {
     title: "Full-stack Developer & AI Engineer",
     date: "November 2025 — Saat Ini",
