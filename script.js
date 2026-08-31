@@ -1,4 +1,4 @@
-const STORAGE_KEY = "jokoding-cv-builder-v5";
+const STORAGE_KEY = "jokoding-cv-builder-v6";
 const LEGACY_STORAGE_KEYS = ["jokoding-cv-builder-v4", "jokoding-cv-builder-v3"];
 const WEB_PROJECTS_VERSION = 2;
 let language = "id";
