@@ -1,6 +1,7 @@
 const STORAGE_KEY = "jokoding-cv-builder-v6";
 const LEGACY_STORAGE_KEYS = ["jokoding-cv-builder-v4", "jokoding-cv-builder-v3"];
 const WEB_PROJECTS_VERSION = 2;
+const WEB_PROFILE_VERSION = 3;
 const AI_LLM_PROFILE_VERSION = 4;
 let language = "id";
 const UI_COPY = {
@@ -130,7 +131,7 @@ const WEB_DEVELOPER_PROFILE = {
     education: "S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |"
   },
   experiences: [
-    { title: "Full-stack Developer", date: "November 2025 — Saat Ini", company: "Freelance", bullets: "Menyelesaikan lebih dari 50 proyek pengembangan perangkat lunak yang mencakup website, API, automation, dan integrasi layanan pihak ketiga.\nMengembangkan solusi dari tahap analisis kebutuhan, implementasi, hingga deployment untuk berbagai kebutuhan klien." },
+    { title: "Freelance IT Developer", date: "November 2025 — Saat Ini", company: "Jokiproyek", bullets: "Mengerjakan proyek pengembangan perangkat lunak berbasis kebutuhan klien, mulai dari website, dashboard, backend/API, automation, hingga integrasi layanan pihak ketiga.\nMenangani proses pengembangan dari analisis kebutuhan, perancangan solusi, implementasi, pengujian, hingga deployment untuk klien individu dan bisnis." },
     { title: "Full-stack Developer", date: "November 2025 — Februari 2026", company: "Kominfo Balai Monitor I Semarang | Internship On-Site", bullets: "Mengembangkan website monitoring perjalanan dinas untuk menyelesaikan kebutuhan administrasi dan penyerahan dokumen antar pihak." }
   ],
   projects: [
@@ -249,7 +250,7 @@ function currentState() {
   const form = Object.fromEntries([...document.querySelectorAll("[data-bind]")].map(input => [input.dataset.bind, input.value]));
   const personal = Object.fromEntries(["name", "email", "whatsapp", "linkedin", "github"].map(key => [key, form[key]]));
   profiles[selectedProfile] = { form: { achievements: form.achievements, education: form.education }, experiences, projects, skills };
-  return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION, aiLlmProfileVersion: AI_LLM_PROFILE_VERSION };
+  return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION, webProfileVersion: WEB_PROFILE_VERSION, aiLlmProfileVersion: AI_LLM_PROFILE_VERSION };
 }
 
 async function saveStateToServer(state = currentState()) {
@@ -315,6 +316,10 @@ function restoreState(savedState = null) {
     }
     if (state.webProjectsVersion !== WEB_PROJECTS_VERSION && profiles["web-developer"]) {
       profiles["web-developer"].projects = WEB_DEVELOPER_PROFILE.projects.map(project => ({ ...project }));
+    }
+    if (state.webProfileVersion !== WEB_PROFILE_VERSION) {
+      profiles["web-developer"] = JSON.parse(JSON.stringify(WEB_DEVELOPER_PROFILE));
+      profileNames["web-developer"] = "Web Developer";
     }
     if (state.language === "en" || state.language === "id") language = state.language;
     Object.entries(state.personal || state.form || {}).forEach(([key, value]) => {
