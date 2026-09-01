@@ -2,6 +2,7 @@ const STORAGE_KEY = "jokoding-cv-builder-v6";
 const LEGACY_STORAGE_KEYS = ["jokoding-cv-builder-v4", "jokoding-cv-builder-v3"];
 const WEB_PROJECTS_VERSION = 2;
 const WEB_PROFILE_VERSION = 4;
+const STAFF_PROFILE_VERSION = 1;
 const AI_LLM_PROFILE_VERSION = 4;
 let language = "id";
 const UI_COPY = {
@@ -150,6 +151,30 @@ const WEB_DEVELOPER_PROFILE = {
   ]
 };
 
+const STAFF_IT_PROGRAMMER_PROFILE = {
+  form: {
+    achievements: "Top 30 Ericsson Hackathon 2025\nTop 10 Hackathon Sawit Nasional 2025\nPenerima Pendanaan PKM-KC 2025",
+    education: "S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |"
+  },
+  experiences: [
+    { title: "Freelance IT Developer", date: "November 2025 — Saat Ini", company: "Jokiproyek", bullets: "Situation: Klien individu dan bisnis membutuhkan aplikasi web dan sistem informasi yang sesuai dengan proses operasional mereka.\nTask: Mengembangkan solusi web, dashboard, backend/API, dan database dari kebutuhan awal hingga siap digunakan.\nAction: Menganalisis kebutuhan, merancang struktur aplikasi, membangun antarmuka dan REST API, mengelola database, mengintegrasikan layanan pihak ketiga, serta melakukan pengujian dan deployment.\nResult: Menghasilkan 5 proyek web pada portofolio ini, termasuk sistem monitoring workflow 15 tahap, POS multi-tenant, sistem akademik, aplikasi absensi, dan dashboard kesehatan mental." },
+    { title: "Full-stack Developer", date: "November 2025 — Februari 2026", company: "Kominfo Balai Monitor I Semarang | Internship On-Site", bullets: "Situation: Administrasi perjalanan dinas dan penyerahan dokumen membutuhkan pemantauan status yang terstruktur.\nTask: Membangun sistem web yang mendukung 15 tahapan workflow perjalanan dinas, termasuk alur LS dan Non-LS.\nAction: Mengembangkan dashboard monitoring, role-based access, upload dokumen, pencarian, dan pengarsipan dengan frontend, REST API, dan PostgreSQL.\nResult: Menghasilkan sistem monitoring end-to-end untuk memvisualisasikan progres administrasi pada 15 tahapan proses." }
+  ],
+  projects: [
+    { title: "SIAKAD Gallery — Sistem Informasi KRS Mahasiswa", tech: "Laravel, PHP, MySQL, Blade", bullets: "Mengembangkan sistem informasi akademik untuk pengisian KRS, KHS, jadwal, dan manajemen data mahasiswa.\nMenerapkan akses berbasis peran untuk mahasiswa, dosen, dan admin serta membangun komponen Blade yang responsif." },
+    { title: "Monitoring Dashboard Perjalanan Dinas", tech: "Next.js, TypeScript, Express.js, Prisma, PostgreSQL", bullets: "Mengembangkan sistem monitoring workflow dengan 15 tahapan proses, termasuk alur LS dan Non-LS.\nMembangun dashboard, role-based access, upload dokumen, pencarian, pengarsipan, REST API, dan integrasi PostgreSQL." },
+    { title: "POS SaaS Multi-Tenant", tech: "React, Vite, Fastify, Prisma, PostgreSQL, Redis, Midtrans", bullets: "Mengembangkan aplikasi Point of Sale SaaS dengan arsitektur multi-tenant dan dukungan multi-outlet.\nMembangun modul produk, transaksi, inventori, pelanggan, karyawan, absensi, laporan penjualan, dan integrasi pembayaran." },
+    { title: "AbsensiSholat", tech: "Next.js, Supabase, PostgreSQL, QR Code", bullets: "Mengembangkan aplikasi absensi berbasis QR untuk membantu guru memantau kehadiran siswa secara harian.\nMembangun dashboard, rekap absensi harian hingga bulanan, manajemen siswa, dan import data CSV/Excel." }
+  ],
+  skills: [
+    { category: "Programming & Web", details: "PHP, JavaScript, TypeScript, HTML, CSS, Python" },
+    { category: "Framework & Backend", details: "Laravel, Next.js, React, Node.js, Express.js, REST API" },
+    { category: "Database", details: "PostgreSQL, MySQL, Prisma, Supabase" },
+    { category: "Systems & Tools", details: "Git, Linux, Docker, Figma" },
+    { category: "Additional", details: "Role-Based Access, CRUD, Authentication, QR Code, API Integration" }
+  ]
+};
+
 const FULL_STACK_DEVELOPER_PROFILE = {
   form: {
     achievements: "Top 30 Ericsson Hackathon 2025\nTop 10 Hackathon Sawit Nasional 2025\nPenerima Pendanaan PKM-KC 2025",
@@ -197,6 +222,7 @@ let profiles = {
   "ai-engineer": AI_ENGINEER_PROFILE,
   "ai-engineer-llm": AI_ENGINEER_LLM_PROFILE,
   "web-developer": WEB_DEVELOPER_PROFILE,
+  "staff-it-programmer": STAFF_IT_PROGRAMMER_PROFILE,
   "full-stack-developer": FULL_STACK_DEVELOPER_PROFILE,
   "iot-engineer": IOT_ENGINEER_PROFILE
 };
@@ -204,6 +230,7 @@ let profileNames = {
   "ai-engineer": "AI Engineer",
   "ai-engineer-llm": "AI Engineer (LLM)",
   "web-developer": "Web Developer",
+  "staff-it-programmer": "Staff IT Programmer — RS Asa Bunda",
   "full-stack-developer": "Full-stack Developer",
   "iot-engineer": "IoT Engineer"
 };
@@ -250,7 +277,7 @@ function currentState() {
   const form = Object.fromEntries([...document.querySelectorAll("[data-bind]")].map(input => [input.dataset.bind, input.value]));
   const personal = Object.fromEntries(["name", "email", "whatsapp", "linkedin", "github"].map(key => [key, form[key]]));
   profiles[selectedProfile] = { form: { achievements: form.achievements, education: form.education }, experiences, projects, skills };
-  return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION, webProfileVersion: WEB_PROFILE_VERSION, aiLlmProfileVersion: AI_LLM_PROFILE_VERSION };
+  return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION, webProfileVersion: WEB_PROFILE_VERSION, staffProfileVersion: STAFF_PROFILE_VERSION, aiLlmProfileVersion: AI_LLM_PROFILE_VERSION };
 }
 
 async function saveStateToServer(state = currentState()) {
@@ -320,6 +347,10 @@ function restoreState(savedState = null) {
     if (state.webProfileVersion !== WEB_PROFILE_VERSION) {
       profiles["web-developer"] = JSON.parse(JSON.stringify(WEB_DEVELOPER_PROFILE));
       profileNames["web-developer"] = "Web Developer";
+    }
+    if (state.staffProfileVersion !== STAFF_PROFILE_VERSION) {
+      profiles["staff-it-programmer"] = JSON.parse(JSON.stringify(STAFF_IT_PROGRAMMER_PROFILE));
+      profileNames["staff-it-programmer"] = "Staff IT Programmer — RS Asa Bunda";
     }
     if (state.language === "en" || state.language === "id") language = state.language;
     Object.entries(state.personal || state.form || {}).forEach(([key, value]) => {
