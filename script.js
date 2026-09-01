@@ -175,6 +175,31 @@ const STAFF_IT_PROGRAMMER_PROFILE = {
   ]
 };
 
+const KOKOLA_SIS_PROFILE_VERSION = 1;
+const KOKOLA_SIS_PROFILE = {
+  form: {
+    achievements: "Top 30 Ericsson Hackathon 2025\nTop 10 Hackathon Sawit Nasional 2025\nPenerima Pendanaan PKM-KC 2025",
+    education: "S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |"
+  },
+  experiences: [
+    { title: "Freelance IT Developer", date: "November 2025 — Saat Ini", company: "Jokiproyek", bullets: "Mengembangkan solusi aplikasi dan sistem informasi untuk kebutuhan klien individu maupun bisnis, termasuk website, dashboard, backend/API, dan database.\nMenganalisis kebutuhan, membangun fitur, mengelola integrasi database dan layanan pihak ketiga, serta melakukan pengujian, maintenance, dan deployment.\nMenyelesaikan 5 proyek web pada portofolio ini, termasuk sistem akademik, POS, dashboard monitoring, dan aplikasi absensi." },
+    { title: "Full-stack Developer", date: "November 2025 — Februari 2026", company: "Kominfo Balai Monitor I Semarang | Internship On-Site", bullets: "Mengembangkan sistem informasi untuk membantu monitoring administrasi perjalanan dinas dan penyerahan dokumen antar pihak.\nMembangun dashboard, role-based access, upload dokumen, pencarian, pengarsipan, REST API, dan integrasi PostgreSQL untuk mendukung 15 tahapan workflow.\nMenghasilkan sistem monitoring end-to-end yang membantu pengguna melihat progres proses administrasi secara terstruktur." }
+  ],
+  projects: [
+    { title: "SIAKAD Gallery — Sistem Informasi Akademik", tech: "Laravel, PHP, MySQL, Blade", bullets: "Mengembangkan sistem informasi untuk KRS, KHS, jadwal, dan manajemen data mahasiswa.\nMenerapkan role-based access untuk mahasiswa, dosen, dan admin serta membangun antarmuka Blade responsif." },
+    { title: "Monitoring Dashboard Perjalanan Dinas", tech: "Next.js, TypeScript, Express.js, Prisma, PostgreSQL", bullets: "Mengembangkan sistem informasi monitoring dengan 15 tahapan workflow, termasuk alur LS dan Non-LS.\nMembangun dashboard, upload dokumen, pencarian, pengarsipan, REST API, dan integrasi database." },
+    { title: "RIP Daemon — Network Protocol", tech: "Python, UDP, Socket, Linux", bullets: "Mengembangkan daemon Routing Information Protocol untuk mensimulasikan beberapa router pada satu mesin menggunakan UDP localhost.\nMembangun konfigurasi port, pertukaran routing, logging, dan pengujian untuk 4 router simulasi." },
+    { title: "Child Monitoring Wearable IoT", tech: "Python, Antares IoT, Telegram Bot API, Webhook, SQLite", bullets: "Mengembangkan sistem monitoring perangkat wearable dengan webhook Antares IoT dan Telegram Bot API.\nMembangun notifikasi lokasi dan kondisi terjatuh dengan penyimpanan data SQLite." }
+  ],
+  skills: [
+    { category: "Programming", details: "PHP, JavaScript, TypeScript, Python, HTML, CSS" },
+    { category: "Database", details: "MySQL, SQLite, PostgreSQL, Prisma" },
+    { category: "Information Systems", details: "REST API, CRUD, Authentication, Role-Based Access, Dashboard, Database Integration" },
+    { category: "Networking & Systems", details: "TCP/IP, UDP, MQTT, LAN/WAN Concepts, Linux, Raspberry Pi, ESP32" },
+    { category: "Tools", details: "Git, Docker, Laravel, Next.js, Node.js, Express.js" }
+  ]
+};
+
 const IT_SUPPORT_ELPI_PROFILE_VERSION = 2;
 const IT_SUPPORT_ELPI_PROFILE = {
   form: {
@@ -249,6 +274,7 @@ let profiles = {
   "web-developer": WEB_DEVELOPER_PROFILE,
   "staff-it-programmer": STAFF_IT_PROGRAMMER_PROFILE,
   "it-support-elpi": IT_SUPPORT_ELPI_PROFILE,
+  "kokola-sis": KOKOLA_SIS_PROFILE,
   "full-stack-developer": FULL_STACK_DEVELOPER_PROFILE,
   "iot-engineer": IOT_ENGINEER_PROFILE
 };
@@ -258,6 +284,7 @@ let profileNames = {
   "web-developer": "Web Developer",
   "staff-it-programmer": "Staff IT Programmer — RS Asa Bunda",
   "it-support-elpi": "IT Support Staff — ELPI Surabaya",
+  "kokola-sis": "Staff Management Information System — Kokola",
   "full-stack-developer": "Full-stack Developer",
   "iot-engineer": "IoT Engineer"
 };
@@ -304,7 +331,7 @@ function currentState() {
   const form = Object.fromEntries([...document.querySelectorAll("[data-bind]")].map(input => [input.dataset.bind, input.value]));
   const personal = Object.fromEntries(["name", "email", "whatsapp", "linkedin", "github"].map(key => [key, form[key]]));
   profiles[selectedProfile] = { form: { achievements: form.achievements, education: form.education }, experiences, projects, skills };
-  return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION, webProfileVersion: WEB_PROFILE_VERSION, staffProfileVersion: STAFF_PROFILE_VERSION, itSupportElpiProfileVersion: IT_SUPPORT_ELPI_PROFILE_VERSION, aiLlmProfileVersion: AI_LLM_PROFILE_VERSION };
+  return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION, webProfileVersion: WEB_PROFILE_VERSION, staffProfileVersion: STAFF_PROFILE_VERSION, itSupportElpiProfileVersion: IT_SUPPORT_ELPI_PROFILE_VERSION, kokolaSisProfileVersion: KOKOLA_SIS_PROFILE_VERSION, aiLlmProfileVersion: AI_LLM_PROFILE_VERSION };
 }
 
 async function saveStateToServer(state = currentState()) {
@@ -382,6 +409,10 @@ function restoreState(savedState = null) {
     if (state.itSupportElpiProfileVersion !== IT_SUPPORT_ELPI_PROFILE_VERSION) {
       profiles["it-support-elpi"] = JSON.parse(JSON.stringify(IT_SUPPORT_ELPI_PROFILE));
       profileNames["it-support-elpi"] = "IT Support Staff — ELPI Surabaya";
+    }
+    if (state.kokolaSisProfileVersion !== KOKOLA_SIS_PROFILE_VERSION) {
+      profiles["kokola-sis"] = JSON.parse(JSON.stringify(KOKOLA_SIS_PROFILE));
+      profileNames["kokola-sis"] = "Staff Management Information System — Kokola";
     }
     if (state.language === "en" || state.language === "id") language = state.language;
     Object.entries(state.personal || state.form || {}).forEach(([key, value]) => {
