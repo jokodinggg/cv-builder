@@ -1,7 +1,7 @@
 const STORAGE_KEY = "jokoding-cv-builder-v6";
 const LEGACY_STORAGE_KEYS = ["jokoding-cv-builder-v4", "jokoding-cv-builder-v3"];
 const WEB_PROJECTS_VERSION = 2;
-const WEB_PROFILE_VERSION = 3;
+const WEB_PROFILE_VERSION = 4;
 const AI_LLM_PROFILE_VERSION = 4;
 let language = "id";
 const UI_COPY = {
@@ -131,8 +131,8 @@ const WEB_DEVELOPER_PROFILE = {
     education: "S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |"
   },
   experiences: [
-    { title: "Freelance IT Developer", date: "November 2025 — Saat Ini", company: "Jokiproyek", bullets: "Mengerjakan proyek pengembangan perangkat lunak berbasis kebutuhan klien, mulai dari website, dashboard, backend/API, automation, hingga integrasi layanan pihak ketiga.\nMenangani proses pengembangan dari analisis kebutuhan, perancangan solusi, implementasi, pengujian, hingga deployment untuk klien individu dan bisnis." },
-    { title: "Full-stack Developer", date: "November 2025 — Februari 2026", company: "Kominfo Balai Monitor I Semarang | Internship On-Site", bullets: "Mengembangkan website monitoring perjalanan dinas untuk menyelesaikan kebutuhan administrasi dan penyerahan dokumen antar pihak." }
+    { title: "Freelance IT Developer", date: "November 2025 — Saat Ini", company: "Jokiproyek", bullets: "Situation: Menangani kebutuhan digital klien individu dan bisnis yang membutuhkan solusi web, dashboard, backend/API, dan automation.\nTask: Menerjemahkan kebutuhan menjadi aplikasi yang terukur, termasuk sistem workflow 15 tahap, aplikasi multi-tenant multi-outlet, dan dashboard operasional.\nAction: Menganalisis kebutuhan, merancang arsitektur, membangun frontend dan REST API, mengintegrasikan database serta layanan pihak ketiga, lalu melakukan pengujian dan deployment.\nResult: Menghasilkan 5 proyek web pada portofolio ini dengan cakupan role-based access, transaksi, inventori, laporan, upload dokumen, pencarian, dan pengarsipan data." },
+    { title: "Full-stack Developer", date: "November 2025 — Februari 2026", company: "Kominfo Balai Monitor I Semarang | Internship On-Site", bullets: "Situation: Proses perjalanan dinas dan penyerahan dokumen membutuhkan pemantauan status yang terstruktur.\nTask: Mengembangkan sistem web untuk menghubungkan pihak-pihak yang terlibat dalam 15 tahapan workflow perjalanan dinas, termasuk alur LS dan Non-LS.\nAction: Membangun dashboard monitoring, role-based access, upload dokumen, pencarian, dan pengarsipan dengan integrasi frontend, REST API, serta database PostgreSQL.\nResult: Menghasilkan sistem monitoring end-to-end yang memvisualisasikan progres administrasi pada 15 tahapan proses." }
   ],
   projects: [
     { title: "Monitoring Dashboard Perjalanan Dinas", tech: "Next.js, TypeScript, Tailwind CSS, Express.js, Prisma, PostgreSQL", bullets: "Mengembangkan sistem monitoring workflow perjalanan dinas dengan 15 tahapan proses, termasuk alur LS dan Non-LS.\nMembangun dashboard, pelacakan progres, manajemen pengguna berbasis role, upload dokumen, serta fitur pencarian dan pengarsipan data.\nMengintegrasikan frontend Next.js dengan REST API Express dan database PostgreSQL melalui Prisma ORM." },
