@@ -175,15 +175,15 @@ const STAFF_IT_PROGRAMMER_PROFILE = {
   ]
 };
 
-const IT_SUPPORT_ELPI_PROFILE_VERSION = 1;
+const IT_SUPPORT_ELPI_PROFILE_VERSION = 2;
 const IT_SUPPORT_ELPI_PROFILE = {
   form: {
     achievements: "Top 30 Ericsson Hackathon 2025\nTop 10 Hackathon Sawit Nasional 2025\nPenerima Pendanaan PKM-KC 2025",
     education: "S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |"
   },
   experiences: [
-    { title: "Freelance IT Developer", date: "November 2025 — Saat Ini", company: "Jokiproyek", bullets: "Situation: Klien individu dan bisnis membutuhkan dukungan untuk aplikasi, database, integrasi API, dan sistem operasional berbasis teknologi.\nTask: Menganalisis masalah teknis dan menyediakan solusi yang dapat digunakan sesuai kebutuhan pengguna.\nAction: Melakukan troubleshooting pada aplikasi, mengelola database dan API, menguji integrasi, serta membantu deployment dan konfigurasi sistem.\nResult: Menyelesaikan 5 proyek web pada portofolio ini, termasuk dashboard monitoring, POS, sistem akademik, dan aplikasi absensi." },
-    { title: "Full-stack Developer", date: "November 2025 — Februari 2026", company: "Kominfo Balai Monitor I Semarang | Internship On-Site", bullets: "Situation: Proses administrasi perjalanan dinas membutuhkan sistem monitoring status dan dokumen yang terstruktur.\nTask: Membantu membangun sistem internal untuk mendukung 15 tahapan workflow perjalanan dinas.\nAction: Mengembangkan dashboard, role-based access, upload dokumen, pencarian, pengarsipan, REST API, dan integrasi PostgreSQL.\nResult: Menghasilkan sistem monitoring yang memvisualisasikan progres administrasi pada 15 tahapan proses." }
+    { title: "Freelance IT Developer", date: "November 2025 — Saat Ini", company: "Jokiproyek", bullets: "Menganalisis kebutuhan klien individu dan bisnis, lalu mengembangkan solusi web, dashboard, backend/API, dan database yang sesuai dengan proses operasional.\nMembangun antarmuka, REST API, integrasi layanan pihak ketiga, dan konfigurasi sistem melalui proses pengujian hingga deployment.\nMenyelesaikan 5 proyek web pada portofolio ini, termasuk dashboard monitoring, POS, sistem akademik, dan aplikasi absensi, dengan salah satu sistem memiliki workflow 15 tahap." },
+    { title: "Full-stack Developer", date: "November 2025 — Februari 2026", company: "Kominfo Balai Monitor I Semarang | Internship On-Site", bullets: "Mengembangkan sistem web untuk mengatasi kebutuhan monitoring administrasi perjalanan dinas dan penyerahan dokumen antar pihak.\nMembangun dashboard monitoring, role-based access, upload dokumen, pencarian, pengarsipan, REST API, dan integrasi PostgreSQL untuk mendukung workflow LS dan Non-LS.\nMenghasilkan sistem monitoring end-to-end yang memvisualisasikan progres administrasi pada 15 tahapan proses." }
   ],
   projects: [
     { title: "RIP Daemon — Network Protocol", tech: "Python, UDP, Socket, select(), Linux", bullets: "Mengembangkan daemon Routing Information Protocol untuk mensimulasikan beberapa router pada satu mesin menggunakan UDP localhost.\nMembangun konfigurasi port, pertukaran routing, logging, dan pengujian untuk 4 router simulasi." },
