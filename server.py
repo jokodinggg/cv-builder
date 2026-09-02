@@ -37,6 +37,18 @@ def initialize_database() -> None:
             )
             """
         )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS cv_profile_versions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                profile_id TEXT NOT NULL,
+                version_number INTEGER NOT NULL,
+                profile_json TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(profile_id, version_number)
+            )
+            """
+        )
         connection.commit()
 
 
@@ -84,7 +96,23 @@ def write_profile(profile_id: str, profile: dict) -> None:
             """,
             (profile_id, encoded),
         )
+        version = connection.execute(
+            "SELECT version FROM cv_profiles WHERE id = ?", (profile_id,)
+        ).fetchone()[0]
+        connection.execute(
+            "INSERT OR REPLACE INTO cv_profile_versions (profile_id, version_number, profile_json) VALUES (?, ?, ?)",
+            (profile_id, version, encoded),
+        )
         connection.commit()
+
+
+def list_versions(profile_id: str) -> list[dict]:
+    with sqlite3.connect(DB_PATH) as connection:
+        rows = connection.execute(
+            "SELECT version_number, created_at FROM cv_profile_versions WHERE profile_id = ? ORDER BY version_number DESC",
+            (profile_id,),
+        ).fetchall()
+    return [{"version": version, "created_at": created_at} for version, created_at in rows]
 
 
 def delete_profile(profile_id: str) -> None:
@@ -92,6 +120,8 @@ def delete_profile(profile_id: str) -> None:
         connection.execute("DELETE FROM cv_profiles WHERE id = ?", (profile_id,))
         connection.commit()
 
+
+def read_state() -> dict | None:
     with sqlite3.connect(DB_PATH) as connection:
         row = connection.execute(
             "SELECT state_json FROM app_state WHERE id = 1"
@@ -142,7 +172,16 @@ class CVRequestHandler(SimpleHTTPRequestHandler):
                 self.log_error("list profiles failed: %s", error)
             return
         if path.startswith("/api/profiles/"):
-            profile_id = path.removeprefix("/api/profiles/").strip("/")
+            profile_path = path.removeprefix("/api/profiles/").strip("/")
+            if profile_path.endswith("/versions"):
+                profile_id = profile_path.removesuffix("/versions").strip("/")
+                try:
+                    self.send_json(200, {"profile_id": profile_id, "versions": list_versions(profile_id)})
+                except (OSError, sqlite3.Error) as error:
+                    self.send_json(500, {"error": "Unable to list CV profile versions"})
+                    self.log_error("list versions failed: %s", error)
+                return
+            profile_id = profile_path
             if profile_id and "/" not in profile_id:
                 try:
                     profile = read_profile(profile_id)
