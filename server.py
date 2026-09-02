@@ -27,10 +27,71 @@ def initialize_database() -> None:
             )
             """
         )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS cv_profiles (
+                id TEXT PRIMARY KEY,
+                profile_json TEXT NOT NULL,
+                version INTEGER NOT NULL DEFAULT 1,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
         connection.commit()
 
 
-def read_state() -> dict | None:
+def read_profile(profile_id: str) -> dict | None:
+    with sqlite3.connect(DB_PATH) as connection:
+        row = connection.execute(
+            "SELECT profile_json FROM cv_profiles WHERE id = ?", (profile_id,)
+        ).fetchone()
+    if row is None:
+        return None
+    return json.loads(row[0])
+
+
+def list_profiles() -> list[dict]:
+    with sqlite3.connect(DB_PATH) as connection:
+        rows = connection.execute(
+            "SELECT id, version, updated_at, profile_json FROM cv_profiles ORDER BY updated_at DESC"
+        ).fetchall()
+    result = []
+    for profile_id, version, updated_at, encoded in rows:
+        profile = json.loads(encoded)
+        result.append({
+            "id": profile_id,
+            "name": profile.get("name", profile_id),
+            "target_title": profile.get("target_title", ""),
+            "company": profile.get("company", ""),
+            "status": profile.get("status", "Draft"),
+            "version": version,
+            "updated_at": updated_at,
+        })
+    return result
+
+
+def write_profile(profile_id: str, profile: dict) -> None:
+    encoded = json.dumps(profile, ensure_ascii=False, separators=(",", ":"))
+    with sqlite3.connect(DB_PATH) as connection:
+        connection.execute(
+            """
+            INSERT INTO cv_profiles (id, profile_json, version, updated_at)
+            VALUES (?, ?, 1, CURRENT_TIMESTAMP)
+            ON CONFLICT(id) DO UPDATE SET
+                profile_json = excluded.profile_json,
+                version = cv_profiles.version + 1,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (profile_id, encoded),
+        )
+        connection.commit()
+
+
+def delete_profile(profile_id: str) -> None:
+    with sqlite3.connect(DB_PATH) as connection:
+        connection.execute("DELETE FROM cv_profiles WHERE id = ?", (profile_id,))
+        connection.commit()
+
     with sqlite3.connect(DB_PATH) as connection:
         row = connection.execute(
             "SELECT state_json FROM app_state WHERE id = 1"
@@ -73,6 +134,23 @@ class CVRequestHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self) -> None:
         path = urlparse(self.path).path
+        if path == "/api/profiles":
+            try:
+                self.send_json(200, {"profiles": list_profiles()})
+            except (OSError, sqlite3.Error, json.JSONDecodeError) as error:
+                self.send_json(500, {"error": "Unable to list CV profiles"})
+                self.log_error("list profiles failed: %s", error)
+            return
+        if path.startswith("/api/profiles/"):
+            profile_id = path.removeprefix("/api/profiles/").strip("/")
+            if profile_id and "/" not in profile_id:
+                try:
+                    profile = read_profile(profile_id)
+                    self.send_json(200 if profile is not None else 404, profile or {"error": "Profile not found"})
+                except (OSError, sqlite3.Error, json.JSONDecodeError) as error:
+                    self.send_json(500, {"error": "Unable to read CV profile"})
+                    self.log_error("read profile failed: %s", error)
+                return
         if path == "/api/state":
             try:
                 self.send_json(200, read_state())
@@ -87,6 +165,26 @@ class CVRequestHandler(SimpleHTTPRequestHandler):
 
     def do_PUT(self) -> None:
         path = urlparse(self.path).path
+        if path.startswith("/api/profiles/"):
+            profile_id = path.removeprefix("/api/profiles/").strip("/")
+            if not profile_id or "/" in profile_id:
+                self.send_json(404, {"error": "Not found"})
+                return
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                if length <= 0 or length > MAX_BODY_BYTES:
+                    raise ValueError("invalid body size")
+                profile = json.loads(self.rfile.read(length))
+                if not isinstance(profile, dict):
+                    raise ValueError("profile must be an object")
+                write_profile(profile_id, profile)
+                self.send_json(200, {"saved": True, "id": profile_id})
+            except (ValueError, json.JSONDecodeError):
+                self.send_json(400, {"error": "Invalid CV profile"})
+            except (OSError, sqlite3.Error) as error:
+                self.send_json(500, {"error": "Unable to save CV profile"})
+                self.log_error("write profile failed: %s", error)
+            return
         if path != "/api/state":
             self.send_json(404, {"error": "Not found"})
             return

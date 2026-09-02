@@ -334,9 +334,24 @@ function currentState() {
   return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION, webProfileVersion: WEB_PROFILE_VERSION, staffProfileVersion: STAFF_PROFILE_VERSION, itSupportElpiProfileVersion: IT_SUPPORT_ELPI_PROFILE_VERSION, kokolaSisProfileVersion: KOKOLA_SIS_PROFILE_VERSION, aiLlmProfileVersion: AI_LLM_PROFILE_VERSION };
 }
 
+async function saveProfileToServer(profileId, profile) {
+  const response = await fetch(`/api/profiles/${encodeURIComponent(profileId)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: profileNames[profileId] || profileId,
+      target_title: profileNames[profileId] || profileId,
+      content: profile,
+      status: "Draft"
+    })
+  });
+  if (!response.ok) throw new Error(`Profile save failed: ${response.status}`);
+}
+
 async function saveStateToServer(state = currentState()) {
   const response = await fetch("/api/state", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(state) });
   if (!response.ok) throw new Error(`State save failed: ${response.status}`);
+  await saveProfileToServer(selectedProfile, state.profiles[selectedProfile]);
 }
 
 function persistState() {
