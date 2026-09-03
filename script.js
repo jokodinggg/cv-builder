@@ -288,6 +288,17 @@ let profileNames = {
   "full-stack-developer": "Full-stack Developer",
   "iot-engineer": "IoT Engineer"
 };
+const PROFILE_SUMMARIES = {
+  "ai-engineer": "Mahasiswa S1 Teknologi Informasi dengan pengalaman mengembangkan solusi AI, machine learning, computer vision, web application, IoT, dan integrasi API melalui proyek freelance serta kolaborasi teknis.",
+  "ai-engineer-llm": "Senior Researcher dan AI Engineer dengan pengalaman meneliti LLM serta computer vision, sekaligus mengembangkan aplikasi AI, RAG, web application, dan integrasi API untuk kebutuhan praktis.",
+  "web-developer": "Web Developer dengan pengalaman project-based dalam menganalisis kebutuhan dan membangun website, dashboard, sistem informasi, REST API, serta integrasi database untuk kebutuhan individu dan bisnis.",
+  "staff-it-programmer": "IT Developer dengan pengalaman membangun dan mendukung sistem informasi, dashboard, REST API, serta database menggunakan Laravel, PHP, JavaScript, MySQL, dan PostgreSQL.",
+  "it-support-elpi": "IT Developer dengan pengalaman troubleshooting aplikasi, database, API, deployment, serta integrasi perangkat dan network protocol melalui proyek web, IoT, dan sistem internal.",
+  "kokola-sis": "IT Developer dengan pengalaman mengembangkan sistem informasi dan aplikasi internal menggunakan PHP, Laravel, JavaScript, database relasional, REST API, serta konsep networking dasar.",
+  "full-stack-developer": "Full-stack Developer dengan pengalaman membangun aplikasi web end-to-end, mulai dari analisis kebutuhan, frontend, backend/API, database, integrasi layanan, pengujian, hingga deployment.",
+  "iot-engineer": "IoT Engineer dengan pengalaman mengintegrasikan perangkat, sensor, edge computing, computer vision, webhook, database, dan aplikasi monitoring untuk mendukung solusi otomasi.",
+};
+
 let selectedProfile = "ai-engineer-llm";
 let experiences = profiles[selectedProfile].experiences;
 let projects = profiles[selectedProfile].projects;
@@ -330,7 +341,7 @@ let serverStateReady = false;
 function currentState() {
   const form = Object.fromEntries([...document.querySelectorAll("[data-bind]")].map(input => [input.dataset.bind, input.value]));
   const personal = Object.fromEntries(["name", "email", "whatsapp", "linkedin", "github"].map(key => [key, form[key]]));
-  profiles[selectedProfile] = { form: { achievements: form.achievements, education: form.education }, experiences, projects, skills };
+  profiles[selectedProfile] = { form: { summary: form.summary, achievements: form.achievements, education: form.education }, experiences, projects, skills };
   return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION, webProfileVersion: WEB_PROFILE_VERSION, staffProfileVersion: STAFF_PROFILE_VERSION, itSupportElpiProfileVersion: IT_SUPPORT_ELPI_PROFILE_VERSION, kokolaSisProfileVersion: KOKOLA_SIS_PROFILE_VERSION, aiLlmProfileVersion: AI_LLM_PROFILE_VERSION };
 }
 
@@ -383,8 +394,9 @@ function useProfile(profileId) {
   projects = profile.projects;
   skills = profile.skills;
   byId("cv-type").value = selectedProfile;
-  ["achievements", "education"].forEach(key => {
-    document.querySelector(`[data-bind="${key}"]`).value = profile.form[key] || "";
+  ["summary", "achievements", "education"].forEach(key => {
+    const input = document.querySelector(`[data-bind="${key}"]`);
+    if (input) input.value = profile.form[key] || (key === "summary" ? PROFILE_SUMMARIES[selectedProfile] || "" : "");
   });
 }
 
@@ -404,7 +416,7 @@ function restoreState(savedState = null) {
     }
     if (Array.isArray(state.experiences)) {
       profiles[selectedProfile] = {
-        form: { achievements: state.form?.achievements || "", education: state.form?.education || "" },
+        form: { summary: state.form?.summary || PROFILE_SUMMARIES[selectedProfile] || "", achievements: state.form?.achievements || "", education: state.form?.education || "" },
         experiences: state.experiences,
         projects: Array.isArray(state.projects) ? state.projects : projects,
         skills: Array.isArray(state.skills) ? state.skills : skills

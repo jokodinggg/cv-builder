@@ -55,6 +55,11 @@
             </div>
           </fieldset>
 
+          <fieldset data-preview-target="#preview-summary">
+            <legend>Ringkasan Profil</legend>
+            <label><span class="hint">Satu paragraf singkat tentang pengalaman dan fokus Anda</span><textarea data-bind="summary" rows="4"></textarea></label>
+          </fieldset>
+
           <fieldset data-preview-target="#preview-skills">
             <legend data-i18n="skills">Keterampilan</legend>
             <p class="help-text" data-i18n="skillsHelp">Buat kategori sendiri, lalu isi teknologi atau kemampuan yang relevan.</p>
@@ -102,6 +107,7 @@ SMA Negeri 5 Semarang | 2018 — 2021 |</textarea></label>
             </div>
           </header>
 
+          <section class="cv-section summary-section"><h3>Ringkasan Profil</h3><p id="preview-summary"></p></section>
           <section class="cv-section education"><h3 data-i18n="education">Pendidikan</h3><div id="preview-education"></div></section>
           <section class="cv-section"><h3 data-i18n="skills">Keterampilan</h3><div id="preview-skills" class="skill-list"></div></section>
 
