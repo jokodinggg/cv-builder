@@ -308,7 +308,12 @@ let skills = profiles[selectedProfile].skills;
 const byId = id => document.getElementById(id);
 const escapeHtml = value => String(value ?? "").replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[char]));
 const lines = value => String(value || "").split("\n").map(item => item.trim()).filter(Boolean);
+const withoutStarLabels = value => String(value || "").replace(/^(Situation|Task|Action|Result):\s*/gim, "");
+const cleanExperienceLabels = profile => {
+  if (profile?.experiences) profile.experiences.forEach(item => { item.bullets = withoutStarLabels(item.bullets); });
+};
 const collectionFor = type => type === "experience" ? experiences : type === "project" ? projects : skills;
+
 
 function renderEditor(type) {
   const target = byId(`${type}-fields`);
@@ -391,6 +396,7 @@ function renderProfileOptions() {
 function useProfile(profileId) {
   selectedProfile = profileId;
   const profile = profiles[selectedProfile];
+  cleanExperienceLabels(profile);
   experiences = profile.experiences;
   projects = profile.projects;
   skills = profile.skills;
@@ -407,6 +413,7 @@ function restoreState(savedState = null) {
     const state = typeof rawState === "string" ? JSON.parse(rawState) : rawState;
     if (!state) return;
     if (state.profiles && typeof state.profiles === "object") profiles = { ...profiles, ...state.profiles };
+    Object.values(profiles).forEach(cleanExperienceLabels);
     if (state.profileNames && typeof state.profileNames === "object") profileNames = { ...profileNames, ...state.profileNames };
     if (state.profileSummariesVersion !== PROFILE_SUMMARIES_VERSION) {
       Object.entries(PROFILE_SUMMARIES).forEach(([profileId, summary]) => {
