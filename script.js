@@ -288,15 +288,16 @@ let profileNames = {
   "full-stack-developer": "Full-stack Developer",
   "iot-engineer": "IoT Engineer"
 };
+const PROFILE_SUMMARIES_VERSION = 2;
 const PROFILE_SUMMARIES = {
-  "ai-engineer": "Mahasiswa S1 Teknologi Informasi dengan pengalaman mengembangkan solusi AI, machine learning, computer vision, web application, IoT, dan integrasi API melalui proyek freelance serta kolaborasi teknis.",
-  "ai-engineer-llm": "Senior Researcher dan AI Engineer dengan pengalaman meneliti LLM serta computer vision, sekaligus mengembangkan aplikasi AI, RAG, web application, dan integrasi API untuk kebutuhan praktis.",
-  "web-developer": "Web Developer dengan pengalaman project-based dalam menganalisis kebutuhan dan membangun website, dashboard, sistem informasi, REST API, serta integrasi database untuk kebutuhan individu dan bisnis.",
-  "staff-it-programmer": "IT Developer dengan pengalaman membangun dan mendukung sistem informasi, dashboard, REST API, serta database menggunakan Laravel, PHP, JavaScript, MySQL, dan PostgreSQL.",
-  "it-support-elpi": "IT Developer dengan pengalaman troubleshooting aplikasi, database, API, deployment, serta integrasi perangkat dan network protocol melalui proyek web, IoT, dan sistem internal.",
-  "kokola-sis": "IT Developer dengan pengalaman mengembangkan sistem informasi dan aplikasi internal menggunakan PHP, Laravel, JavaScript, database relasional, REST API, serta konsep networking dasar.",
-  "full-stack-developer": "Full-stack Developer dengan pengalaman membangun aplikasi web end-to-end, mulai dari analisis kebutuhan, frontend, backend/API, database, integrasi layanan, pengujian, hingga deployment.",
-  "iot-engineer": "IoT Engineer dengan pengalaman mengintegrasikan perangkat, sensor, edge computing, computer vision, webhook, database, dan aplikasi monitoring untuk mendukung solusi otomasi.",
+  "ai-engineer": "Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada Artificial Intelligence, Computer Vision, Internet of Things (IoT), dan pengembangan perangkat lunak. Berpengalaman mengembangkan solusi machine learning, object detection, aplikasi full-stack, integrasi sensor, serta deployment sistem berbasis Linux dan edge device melalui proyek profesional maupun akademik.",
+  "ai-engineer-llm": "Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada Artificial Intelligence, Large Language Models (LLM), Computer Vision, dan pengembangan aplikasi AI. Berpengalaman sebagai Senior Researcher serta mengembangkan solusi RAG, integrasi LLM, machine learning, aplikasi full-stack, dan deployment sistem AI untuk kebutuhan praktis.",
+  "web-developer": "Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada pengembangan aplikasi web, frontend, backend, REST API, database, dan sistem informasi. Berpengalaman membangun solusi full-stack melalui proyek freelance dan profesional, mulai dari analisis kebutuhan, implementasi, integrasi layanan, pengujian, hingga deployment.",
+  "staff-it-programmer": "Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada pengembangan sistem informasi, aplikasi web, database, dan backend/API. Berpengalaman membangun dashboard, sistem akademik, aplikasi transaksi, serta workflow internal menggunakan PHP, Laravel, JavaScript, MySQL, dan PostgreSQL.",
+  "it-support-elpi": "Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan pengalaman mendukung pengembangan aplikasi, troubleshooting sistem, database, API, deployment, serta integrasi perangkat dan network protocol. Terbiasa bekerja dengan Linux, TCP/UDP, MQTT, Raspberry Pi, ESP32, dan aplikasi monitoring melalui proyek web, IoT, serta sistem internal.",
+  "kokola-sis": "Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada pengembangan sistem informasi, aplikasi internal, database relasional, REST API, dan networking dasar. Berpengalaman membangun sistem akademik, dashboard monitoring, aplikasi transaksi, serta solusi berbasis PHP, Laravel, JavaScript, MySQL, dan PostgreSQL.",
+  "full-stack-developer": "Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan pengalaman mengembangkan aplikasi full-stack dari sisi frontend hingga backend. Menguasai pengembangan website, REST API, database, autentikasi, integrasi layanan pihak ketiga, pengujian, dan deployment untuk kebutuhan proyek profesional maupun akademik.",
+  "iot-engineer": "Lulusan Teknologi Informasi Institut Teknologi Sepuluh Nopember (ITS) dengan fokus pada Internet of Things (IoT), edge computing, Computer Vision, integrasi sensor, dan otomasi. Berpengalaman mengembangkan sistem monitoring dan perangkat terhubung menggunakan Raspberry Pi, ESP32, MQTT, webhook, database, kamera, sensor, dan aktuator."
 };
 
 let selectedProfile = "ai-engineer-llm";
@@ -342,7 +343,7 @@ function currentState() {
   const form = Object.fromEntries([...document.querySelectorAll("[data-bind]")].map(input => [input.dataset.bind, input.value]));
   const personal = Object.fromEntries(["name", "email", "whatsapp", "linkedin", "github"].map(key => [key, form[key]]));
   profiles[selectedProfile] = { form: { summary: form.summary, achievements: form.achievements, education: form.education }, experiences, projects, skills };
-  return { personal, profiles, profileNames, selectedProfile, language, webProjectsVersion: WEB_PROJECTS_VERSION, webProfileVersion: WEB_PROFILE_VERSION, staffProfileVersion: STAFF_PROFILE_VERSION, itSupportElpiProfileVersion: IT_SUPPORT_ELPI_PROFILE_VERSION, kokolaSisProfileVersion: KOKOLA_SIS_PROFILE_VERSION, aiLlmProfileVersion: AI_LLM_PROFILE_VERSION };
+  return { personal, profiles, profileNames, selectedProfile, language, profileSummariesVersion: PROFILE_SUMMARIES_VERSION, webProjectsVersion: WEB_PROJECTS_VERSION, webProfileVersion: WEB_PROFILE_VERSION, staffProfileVersion: STAFF_PROFILE_VERSION, itSupportElpiProfileVersion: IT_SUPPORT_ELPI_PROFILE_VERSION, kokolaSisProfileVersion: KOKOLA_SIS_PROFILE_VERSION, aiLlmProfileVersion: AI_LLM_PROFILE_VERSION };
 }
 
 async function saveProfileToServer(profileId, profile) {
@@ -407,6 +408,11 @@ function restoreState(savedState = null) {
     if (!state) return;
     if (state.profiles && typeof state.profiles === "object") profiles = { ...profiles, ...state.profiles };
     if (state.profileNames && typeof state.profileNames === "object") profileNames = { ...profileNames, ...state.profileNames };
+    if (state.profileSummariesVersion !== PROFILE_SUMMARIES_VERSION) {
+      Object.entries(PROFILE_SUMMARIES).forEach(([profileId, summary]) => {
+        if (profiles[profileId]) profiles[profileId].form = { ...profiles[profileId].form, summary };
+      });
+    }
     if (!profiles["ai-engineer-llm"] || state.aiLlmProfileVersion !== AI_LLM_PROFILE_VERSION) {
       profiles["ai-engineer-llm"] = JSON.parse(JSON.stringify(AI_ENGINEER_LLM_PROFILE));
       profileNames["ai-engineer-llm"] = "AI Engineer (LLM)";
