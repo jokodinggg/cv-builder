@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FIELD_CONFIG } from "@/lib/resume/defaults";
 import { newId } from "@/lib/resume/ids";
 import { moveInPlace } from "@/lib/move";
-import type { Item, Section } from "@/lib/resume/schema";
+import { MAX_TEXT, type Item, type Section } from "@/lib/resume/schema";
 import { useEditor } from "./editor-context";
 import { DragHandle, RowControls } from "./row-controls";
 import type { DragHandleProps } from "./sortable-list";
@@ -72,10 +72,11 @@ export function ItemEditor({ section, sectionIndex, item, index, handle }: Props
                     className="input mt-1.5 resize-y"
                     rows={rowsFor(item[field], field === "bullets" ? 3 : 2)}
                     value={item[field]}
+                    maxLength={MAX_TEXT}
                     onChange={event => setField(field, event.target.value)}
                   />
                 ) : (
-                  <input className="input mt-1.5" value={item[field]} onChange={event => setField(field, event.target.value)} />
+                  <input className="input mt-1.5" value={item[field]} maxLength={MAX_TEXT} onChange={event => setField(field, event.target.value)} />
                 )}
               </label>
             );

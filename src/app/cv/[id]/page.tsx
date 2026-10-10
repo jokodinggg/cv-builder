@@ -16,5 +16,5 @@ export default async function EditorPage({ params }: Props) {
   const user = await requireUser();
   const resume = await getResume(user.id, (await params).id);
   if (!resume) notFound();
-  return <EditorShell key={resume.id} id={resume.id} title={resume.title} language={resume.language} content={resume.content} />;
+  return <EditorShell key={resume.id} id={resume.id} title={resume.title} language={resume.language} content={resume.content} recovered={resume.recovered} />;
 }

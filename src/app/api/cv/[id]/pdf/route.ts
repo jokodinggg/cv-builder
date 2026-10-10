@@ -35,6 +35,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     });
   } catch (error) {
     console.error("PDF export failed", error);
-    return json(500, error instanceof Error ? error.message : "Gagal membuat PDF.");
+    return json(500, "Gagal membuat PDF di server.");
   }
 }

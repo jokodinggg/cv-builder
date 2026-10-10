@@ -59,3 +59,43 @@ describe("withFreshIds", () => {
     expect(copy.links.at(-1)?.value).toBe("github.com/irfanqs");
   });
 });
+
+describe("parseContent salvage", () => {
+  it("keeps valid sections and truncates an oversized field instead of dropping the CV", async () => {
+    const { parseContentWithStatus } = await import("./schema");
+    const content = createBlankContent("id");
+    content.personal.fullName = "Irfan";
+    content.sections[2].items[0].bullets = "x".repeat(6000);
+    const result = parseContentWithStatus(content);
+    expect(result.recovered).toBe(true);
+    expect(result.content.personal.fullName).toBe("Irfan");
+    expect(result.content.sections).toHaveLength(content.sections.length);
+    expect(result.content.sections[2].items[0].bullets).toHaveLength(5000);
+  });
+
+  it("drops only invalid links and reports recovery", async () => {
+    const { parseContentWithStatus } = await import("./schema");
+    const content = createBlankContent("id") as unknown as { links: unknown[] };
+    content.links.push({ id: "bad", type: "telegram", value: "x", visible: true });
+    const result = parseContentWithStatus(content);
+    expect(result.recovered).toBe(true);
+    expect(result.content.links.map(link => link.id)).not.toContain("bad");
+    expect(result.content.links).toHaveLength(4);
+  });
+
+  it("reports no recovery for valid content", async () => {
+    const { parseContentWithStatus } = await import("./schema");
+    expect(parseContentWithStatus(createBlankContent("en")).recovered).toBe(false);
+  });
+});
+
+describe("describeContentError", () => {
+  it("names the section and field that is too long", async () => {
+    const { describeContentError } = await import("./schema");
+    const content = createBlankContent("id");
+    content.sections[2].items[0].bullets = "x".repeat(6000);
+    const result = resumeContentSchema.safeParse(content);
+    expect(result.success).toBe(false);
+    if (!result.success) expect(describeContentError(result.error, content)).toMatch(/Pengalaman.*5000/);
+  });
+});

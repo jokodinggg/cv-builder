@@ -53,7 +53,7 @@ export function PaginatedCv({ content, language, layout = "stack", zoom = 1, act
   const measureRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLDivElement>(null);
   const [fontsReady, setFontsReady] = useState(false);
-  const [result, setResult] = useState<{ blocks: Block[]; pagination: Pagination } | null>(null);
+  const [result, setResult] = useState<{ blocks: Block[]; pagination: Pagination; fontsReady: boolean } | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -70,15 +70,17 @@ export function PaginatedCv({ content, language, layout = "stack", zoom = 1, act
     const nodes = Array.from(measure.querySelectorAll<HTMLElement>(":scope > .cv-content > .cv-block"));
     const heights = nodes.map(node => node.getBoundingClientRect().height);
     const pagination = paginate(heights, blocks.map(block => block.breakBefore), probe.getBoundingClientRect().height);
-    setResult({ blocks, pagination });
+    setResult({ blocks, pagination, fontsReady });
   }, [blocks, index, language, fontsReady]);
 
   const pagination = result?.blocks === blocks ? result.pagination : null;
+  // Final means measured with the real web fonts; only then may print/PDF capture the pages.
+  const final = pagination !== null && result?.fontsReady === true;
 
   useEffect(() => {
-    if (!pagination) return;
+    if (!pagination || !final) return;
     onPaginate?.({ pageCount: pagination.pages.length, overflowKeys: pagination.overflow.map(i => blocks[i].key) });
-  }, [pagination, blocks, onPaginate]);
+  }, [pagination, final, blocks, onPaginate]);
 
   const renderBlock = (block: Block, extra?: { active?: boolean }) => {
     const section = block.sectionId ? index.sections.get(block.sectionId) : undefined;
@@ -95,7 +97,7 @@ export function PaginatedCv({ content, language, layout = "stack", zoom = 1, act
   };
 
   return (
-    <div data-ready={fontsReady && pagination ? "true" : "false"} data-pages={pagination?.pages.length ?? 0}>
+    <div data-ready={final ? "true" : "false"} data-pages={pagination?.pages.length ?? 0}>
       <div ref={measureRef} className="cv-measure cv-sheet" aria-hidden="true">
         <div className="cv-content">{blocks.map(block => renderBlock(block))}</div>
         <div ref={probeRef} className="cv-page-height-probe" />

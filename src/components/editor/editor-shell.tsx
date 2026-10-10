@@ -14,7 +14,7 @@ import { SectionEditor } from "./section-editor";
 import { SortableList } from "./sortable-list";
 import { useResumeState, type SaveState } from "./use-resume-state";
 
-type Props = { id: string; title: string; language: Language; content: ResumeContent };
+type Props = { id: string; title: string; language: Language; content: ResumeContent; recovered?: boolean };
 
 const SAVE_LABEL: Record<SaveState, string> = {
   saved: "Tersimpan",
@@ -23,7 +23,7 @@ const SAVE_LABEL: Record<SaveState, string> = {
   error: "Gagal menyimpan",
 };
 
-export function EditorShell({ id, title: initialTitle, language: initialLanguage, content: initialContent }: Props) {
+export function EditorShell({ id, title: initialTitle, language: initialLanguage, content: initialContent, recovered = false }: Props) {
   const { content, update, saveState, saveError, flush } = useResumeState(id, initialContent);
   const [title, setTitle] = useState(initialTitle);
   const [savedTitle, setSavedTitle] = useState(initialTitle);
@@ -84,6 +84,11 @@ export function EditorShell({ id, title: initialTitle, language: initialLanguage
             )}
           </span>
         </header>
+        {recovered && (
+          <p role="status" className="bg-[#fff6dc] px-4 py-1.5 text-sm text-[#7a5a00]">
+            Sebagian data CV ini rusak dan sudah diperbaiki otomatis (teks terlalu panjang dipotong, entri tidak valid dibuang). Periksa isinya sebelum mengedit.
+          </p>
+        )}
         {metaError && <p role="alert" className="bg-[#feecec] px-4 py-1.5 text-sm text-danger">{metaError}</p>}
 
         <div className="flex border-b border-line bg-white lg:hidden" role="tablist">

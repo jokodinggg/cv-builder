@@ -1,9 +1,10 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { languageSchema, parseContent, resumeContentSchema, type Language, type ResumeContent } from "./schema";
+import { languageSchema, parseContentWithStatus, resumeContentSchema, type Language, type ResumeContent } from "./schema";
 
 export type ResumeSummary = { id: string; title: string; language: Language; updatedAt: Date };
-export type ResumeRecord = ResumeSummary & { template: string; content: ResumeContent };
+/** `recovered` is true when stored content was damaged and has been salvaged on load. */
+export type ResumeRecord = ResumeSummary & { template: string; content: ResumeContent; recovered: boolean };
 export type ResumePatch = { title?: string; language?: Language; content?: ResumeContent };
 
 const MAX_TITLE = 120;
@@ -27,13 +28,15 @@ export async function getResume(userId: string, id: string): Promise<ResumeRecor
   const row = await prisma.resume.findFirst({ where: { id, userId } });
   if (!row) return null;
   const language = toLanguage(row.language);
+  const parsed = parseContentWithStatus(row.content, language);
   return {
     id: row.id,
     title: row.title,
     language,
     template: row.template,
     updatedAt: row.updatedAt,
-    content: parseContent(row.content, language),
+    content: parsed.content,
+    recovered: parsed.recovered,
   };
 }
 
@@ -45,7 +48,7 @@ export async function createResume(
   const row = await prisma.resume.create({
     data: { userId, title: cleanTitle(input.title), language: input.language, content: content as Prisma.InputJsonValue },
   });
-  return { id: row.id, title: row.title, language: input.language, template: row.template, updatedAt: row.updatedAt, content };
+  return { id: row.id, title: row.title, language: input.language, template: row.template, updatedAt: row.updatedAt, content, recovered: false };
 }
 
 export async function updateResume(userId: string, id: string, patch: ResumePatch): Promise<boolean> {

@@ -1,6 +1,8 @@
 import "server-only";
 import { existsSync } from "node:fs";
-import puppeteer, { type Browser } from "puppeteer-core";
+import puppeteer, { type Browser, type Page } from "puppeteer-core";
+import { createLimiter, withDeadline } from "@/lib/async";
+import { isAllowedRequest } from "./request-filter";
 
 const CHROME_CANDIDATES = [
   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -38,30 +40,43 @@ async function getBrowser(): Promise<Browser> {
   return browserPromise;
 }
 
-const TIMEOUT_MS = 30_000;
+const STEP_TIMEOUT_MS = 20_000;
+const TOTAL_TIMEOUT_MS = 45_000; // below the route's maxDuration (60 s) so the page is always closed
+const renderSlots = createLimiter(2); // at most two Chrome pages across all users
+
+async function printPage(page: Page, url: string, cookie: string): Promise<Uint8Array> {
+  const origin = new URL(url).origin;
+  page.setDefaultTimeout(STEP_TIMEOUT_MS);
+  await page.setRequestInterception(true);
+  page.on("request", request => {
+    const action = isAllowedRequest(request.url(), origin) ? request.continue() : request.abort();
+    // Interception can be torn down while a request is pending; never let that reject unhandled.
+    action.catch(() => undefined);
+  });
+  await page.setExtraHTTPHeaders({ cookie });
+  const response = await page.goto(url, { waitUntil: "networkidle0" });
+  if (!response?.ok()) throw new Error(`Print page failed to load (${response?.status() ?? "no response"}).`);
+  await page.waitForSelector('[data-ready="true"]');
+  return page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true, timeout: STEP_TIMEOUT_MS });
+}
 
 /**
  * Opens the print page as the requesting user (cookie forwarded) and prints it to an A4 PDF.
  * Requests to any other origin are blocked so CV content cannot make the server fetch URLs.
  */
-export async function renderPdf(url: string, cookie: string): Promise<Uint8Array> {
-  const origin = new URL(url).origin;
-  const browser = await getBrowser();
-  const page = await browser.newPage();
-  try {
-    page.setDefaultTimeout(TIMEOUT_MS);
-    await page.setRequestInterception(true);
-    page.on("request", request => {
-      const target = request.url();
-      if (target.startsWith("data:") || new URL(target).origin === origin) void request.continue();
-      else void request.abort();
-    });
-    await page.setExtraHTTPHeaders({ cookie });
-    const response = await page.goto(url, { waitUntil: "networkidle0" });
-    if (!response?.ok()) throw new Error(`Halaman cetak gagal dimuat (${response?.status() ?? "tanpa respons"}).`);
-    await page.waitForSelector('[data-ready="true"]');
-    return await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
-  } finally {
-    await page.close().catch(() => undefined);
-  }
+export function renderPdf(url: string, cookie: string): Promise<Uint8Array> {
+  return renderSlots(async () => {
+    let page: Page | null = null;
+    const close = () => void page?.close().catch(() => undefined);
+    const job = (async () => {
+      const browser = await getBrowser();
+      page = await browser.newPage();
+      return printPage(page, url, cookie);
+    })();
+    try {
+      return await withDeadline(job, TOTAL_TIMEOUT_MS, close);
+    } finally {
+      close();
+    }
+  });
 }

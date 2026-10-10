@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createBlankContent } from "@/lib/resume/defaults";
 import { withFreshIds } from "@/lib/resume/ids";
 import * as repo from "@/lib/resume/repository";
-import { languageSchema, resumeContentSchema, type Language } from "@/lib/resume/schema";
+import { describeContentError, languageSchema, resumeContentSchema, type Language } from "@/lib/resume/schema";
 import { applyStrings, collectStrings } from "@/lib/resume/translate";
 import { requireUser } from "@/lib/session";
 import { defaultProvider } from "@/lib/translate/engines";
@@ -38,7 +38,7 @@ export async function createResumeAction(formData: FormData): Promise<void> {
 export async function saveResumeAction(id: string, input: unknown): Promise<ActionResult<{ updatedAt: string }>> {
   const user = await requireUser();
   const parsed = resumeContentSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Data CV tidak valid. Periksa panjang isian." };
+  if (!parsed.success) return { ok: false, error: describeContentError(parsed.error, input) };
   const updatedAt = await repo.touchResume(user.id, id, { content: parsed.data });
   if (!updatedAt) return { ok: false, error: NOT_FOUND };
   return { ok: true, updatedAt: updatedAt.toISOString() };
