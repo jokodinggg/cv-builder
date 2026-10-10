@@ -36,6 +36,39 @@ describe.skipIf(!hasDb)("resume repository ownership", async () => {
     expect(await repo.getResume(userA, created.id)).toBeNull();
   });
 
+  it("refuses the 11th resume for one user", async () => {
+    const limitUser = `test-limit-${Date.now()}`;
+    await prisma.user.create({ data: { id: limitUser, name: limitUser, email: `${limitUser}@test.local` } });
+    try {
+      for (let i = 0; i < repo.MAX_RESUMES_PER_USER; i++) {
+        await repo.createResume(limitUser, { title: `CV ${i}`, language: "id", content: createBlankContent("id") });
+      }
+      await expect(
+        repo.createResume(limitUser, { title: "CV 11", language: "id", content: createBlankContent("id") }),
+      ).rejects.toBeInstanceOf(repo.ResumeLimitError);
+      expect(await repo.countResumes(limitUser)).toBe(10);
+    } finally {
+      await prisma.user.delete({ where: { id: limitUser } });
+    }
+  });
+
+  it("lets only one of two concurrent creates through when one slot is left", async () => {
+    const raceUser = `test-race-${Date.now()}`;
+    await prisma.user.create({ data: { id: raceUser, name: raceUser, email: `${raceUser}@test.local` } });
+    try {
+      for (let i = 0; i < repo.MAX_RESUMES_PER_USER - 1; i++) {
+        await repo.createResume(raceUser, { title: `CV ${i}`, language: "id", content: createBlankContent("id") });
+      }
+      const results = await Promise.allSettled(
+        [1, 2].map(n => repo.createResume(raceUser, { title: `race ${n}`, language: "id", content: createBlankContent("id") })),
+      );
+      expect(results.filter(result => result.status === "fulfilled")).toHaveLength(1);
+      expect(await repo.countResumes(raceUser)).toBe(10);
+    } finally {
+      await prisma.user.delete({ where: { id: raceUser } });
+    }
+  });
+
   it("returns blank content when the stored JSON is malformed", async () => {
     const row = await prisma.resume.create({ data: { userId: userA, title: "broken", content: { nope: 1 } } });
     const loaded = await repo.getResume(userA, row.id);

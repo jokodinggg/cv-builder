@@ -8,6 +8,14 @@ export type ResumeRecord = ResumeSummary & { template: string; content: ResumeCo
 export type ResumePatch = { title?: string; language?: Language; content?: ResumeContent };
 
 const MAX_TITLE = 120;
+export const MAX_RESUMES_PER_USER = 10;
+
+export class ResumeLimitError extends Error {
+  constructor() {
+    super(`Maksimal ${MAX_RESUMES_PER_USER} CV per akun. Hapus CV lama untuk membuat yang baru.`);
+    this.name = "ResumeLimitError";
+  }
+}
 
 const toLanguage = (value: string): Language => (languageSchema.safeParse(value).success ? (value as Language) : "id");
 
@@ -40,13 +48,23 @@ export async function getResume(userId: string, id: string): Promise<ResumeRecor
   };
 }
 
+export async function countResumes(userId: string): Promise<number> {
+  return prisma.resume.count({ where: { userId } });
+}
+
+/** Throws ResumeLimitError when the user already has MAX_RESUMES_PER_USER resumes. */
 export async function createResume(
   userId: string,
   input: { title: string; language: Language; content: ResumeContent },
 ): Promise<ResumeRecord> {
   const content = resumeContentSchema.parse(input.content);
-  const row = await prisma.resume.create({
-    data: { userId, title: cleanTitle(input.title), language: input.language, content: content as Prisma.InputJsonValue },
+  const row = await prisma.$transaction(async tx => {
+    // Per-user lock so two parallel creates cannot both pass the count check.
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId}))`;
+    if ((await tx.resume.count({ where: { userId } })) >= MAX_RESUMES_PER_USER) throw new ResumeLimitError();
+    return tx.resume.create({
+      data: { userId, title: cleanTitle(input.title), language: input.language, content: content as Prisma.InputJsonValue },
+    });
   });
   return { id: row.id, title: row.title, language: input.language, template: row.template, updatedAt: row.updatedAt, content, recovered: false };
 }
