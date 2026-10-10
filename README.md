@@ -1,6 +1,6 @@
 # CV Builder
 
-SaaS untuk membuat CV profesional. Setiap pengguna punya akun sendiri, bisa menyimpan banyak CV, mengatur urutan isi dengan drag and drop, melihat pratinjau A4 langsung (dua halaman tampil berdampingan), mengekspor PDF, dan menerjemahkan CV Indonesia ⇄ Inggris.
+SaaS untuk membuat CV profesional. Setiap pengguna punya akun sendiri, bisa menyimpan hingga 10 CV, mengatur urutan isi dengan drag and drop, melihat pratinjau A4 langsung (dua halaman tampil berdampingan), mengekspor PDF, dan membuat versi bahasa Inggris/Indonesia dari CV-nya.
 
 Versi lama (HTML statis + server SQLite Python) disimpan di [`legacy/`](legacy/) sebagai referensi. Jalankan dengan `python3 legacy/server.py` (port 20129). Database-nya sekarang di `legacy/cv_builder.sqlite3`; set `CV_BUILDER_DB` untuk memakai file lama.
 
@@ -8,8 +8,8 @@ Versi lama (HTML statis + server SQLite Python) disimpan di [`legacy/`](legacy/)
 
 | Fitur | Keterangan |
 | --- | --- |
-| Akun per pengguna | Daftar/masuk dengan email + kata sandi. Login Google aktif jika `GOOGLE_CLIENT_ID` diisi. Setiap CV hanya bisa dibuka pemiliknya. |
-| Banyak CV | Buat CV dari template kosong atau salin CV lama. Duplikat, ganti nama, hapus dari dashboard. |
+| Akun per pengguna | Daftar/masuk dengan email + kata sandi, dilindungi captcha Cloudflare Turnstile tanpa centang (aktif jika key diisi). Login Google aktif jika `GOOGLE_CLIENT_ID` diisi. Setiap CV hanya bisa dibuka pemiliknya. |
+| Banyak CV | Maksimal 10 CV per akun. Buat CV dari template kosong atau salin CV lama. Duplikat, ganti nama, hapus dari dashboard. |
 | Edit lengkap | Identitas, kontak & media sosial (WhatsApp, Email, LinkedIn, GitHub, Website, Instagram, X, YouTube, Telepon, lainnya), pendidikan, keterampilan, pengalaman, proyek, prestasi, ringkasan, dan bagian bebas (organisasi, sertifikasi, …). |
 | Atur urutan | Seret ikon ⋮⋮ (mouse, sentuh, atau keyboard: Spasi → panah → Spasi) atau tombol ↑ ↓ untuk bagian, item, dan tautan. |
 | Sembunyikan tanpa menghapus | Ikon mata pada bagian, item, dan tautan. |
@@ -17,7 +17,7 @@ Versi lama (HTML statis + server SQLite Python) disimpan di [`legacy/`](legacy/)
 | Atur halaman | Centang "Mulai bagian ini di halaman baru" untuk memaksa pindah halaman. Judul bagian tidak pernah tertinggal sendirian di akhir halaman. |
 | Download PDF | PDF dibuat server dari halaman yang sama dengan pratinjau, jadi hasilnya identik. Teks bisa disalin. Nama file otomatis: `CV_<Nama>_<BLNTH>.pdf`. |
 | Cetak via browser | Alternatif bila server tidak punya Chrome: buka dialog cetak browser lalu "Simpan sebagai PDF". |
-| Terjemahkan | Membuat salinan CV dalam bahasa lain (judul `… (EN)` / `… (ID)`). CV asli tidak berubah. Istilah teknis dipertahankan. |
+| Versi EN / ID | "Buat versi EN" menyalin CV menjadi CV baru berbahasa Inggris (judul `… (EN)`). Judul bagian otomatis berbahasa Inggris; isi ditulis ulang sendiri oleh pengguna supaya akurat. Salinan dihitung ke batas 10 CV. |
 | Simpan otomatis | Perubahan tersimpan 0,8 detik setelah berhenti mengetik. Status "Tersimpan / Menyimpan… / Gagal menyimpan" di kanan atas. |
 
 ## Tech stack
@@ -30,7 +30,7 @@ Versi lama (HTML statis + server SQLite Python) disimpan di [`legacy/`](legacy/)
 | Auth | Better Auth (sesi cookie, email/password, Google opsional) |
 | Drag and drop | @dnd-kit |
 | PDF | puppeteer-core + Chrome/Chromium yang terpasang di server |
-| Terjemahan | Claude API (`claude-opus-5-5`, structured output) bila `ANTHROPIC_API_KEY` ada; tanpa key memakai endpoint Google Translate gratis (kualitas lebih rendah, nama perusahaan kadang ikut diterjemahkan) |
+| Captcha | Cloudflare Turnstile (mode invisible) lewat plugin `captcha` Better Auth |
 | Tes | Vitest |
 
 ## Menjalankan secara lokal
@@ -59,7 +59,7 @@ Buka http://localhost:3000. Akun demo dari seed: `demo@cvbuilder.local` / `demo1
 | `BETTER_AUTH_URL` | ya | URL publik aplikasi |
 | `NEXT_PUBLIC_APP_URL` | ya | Sama dengan `BETTER_AUTH_URL` |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | tidak | Aktifkan login Google |
-| `ANTHROPIC_API_KEY` | tidak | Terjemahan dengan Claude |
+| `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | tidak | Captcha tanpa centang di daftar, masuk, dan reset kata sandi. Kosongkan untuk mematikan. |
 | `CHROME_EXECUTABLE_PATH` | tidak | Lokasi Chrome bila tidak terdeteksi otomatis |
 | `PDF_RENDER_ORIGIN` | tidak | Origin yang dibuka Chrome untuk PDF (default `BETTER_AUTH_URL`) |
 | `TEST_DATABASE_URL` | untuk tes | Database terpisah untuk `pnpm test` |
@@ -88,17 +88,16 @@ Buka http://localhost:3000. Akun demo dari seed: `demo@cvbuilder.local` / `demo1
    - Klik kolom mana pun: blok terkait disorot di pratinjau.
 4. Atur tampilan pratinjau: **Berdampingan** untuk melihat 2 halaman sekaligus. Jika muncul "ada isi yang terpotong", satu item lebih panjang dari satu halaman; pendekkan poinnya.
 5. **Download PDF** untuk file siap kirim. Jika gagal (server tanpa Chrome), pakai **Cetak via browser**.
-6. **Terjemahkan ke EN** membuat salinan berbahasa Inggris dan langsung membukanya. Periksa hasilnya sebelum dikirim.
+6. **Buat versi EN** membuat salinan berbahasa Inggris dan langsung membukanya. Judul bagian sudah dalam bahasa Inggris; tulis ulang isi tiap kolom dalam bahasa Inggris.
 
 ## Arsitektur singkat
 
 ```
 src/
   app/                    halaman (landing, auth, dashboard, editor, print) + API (auth, pdf)
-  actions/resume.ts       server actions: buat, simpan, salin, ganti nama, hapus, terjemahkan
-  lib/resume/             schema Zod, default, tautan, blok, paginasi, terjemahan, repository
+  actions/resume.ts       server actions: buat, simpan, salin, ganti nama, hapus, buat versi bahasa lain
+  lib/resume/             schema Zod, default, tautan, blok, paginasi, salinan bahasa, repository (batas 10 CV)
   lib/pdf/                Chrome headless + nama file
-  lib/translate/          penyedia terjemahan (Claude / Google)
   components/cv/          render lembar A4 (dipakai pratinjau, cetak, dan PDF)
   components/editor/      panel editor, drag and drop, autosave
 ```
