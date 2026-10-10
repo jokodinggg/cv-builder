@@ -38,8 +38,7 @@
 .cv-bullets li { margin: 0.3mm 0; padding-left: 0.6mm; }
 .cv-skill, .cv-summary { margin: 0; padding-bottom: 1mm; }
 .cv-skill { padding-bottom: 0.6mm; }
-.cv-list-item { margin: 0; padding: 0 0 0.4mm 4.6mm; position: relative; }
-.cv-list-item::before { content: "•"; position: absolute; left: 1mm; }
+.cv-list-item { display: list-item; list-style: disc outside; margin: 0 0 0 4.6mm; padding: 0 0 0.4mm 0.6mm; }
 .cv-projects .cv-title { font-size: 10pt; }
 
 .cv-overflow-badge { position: absolute; right: 4mm; bottom: 4mm; padding: 1mm 2mm; border-radius: 1.5mm; background: #feecec; color: #a33535; font: 700 8pt var(--font-dm-sans), sans-serif; }
