@@ -7,3 +7,9 @@ next-env.d.ts
 .DS_Store
 .superpowers/
 coverage/
+
+# Legacy static app (legacy/server.py)
+cv_builder.sqlite3
+cv_builder.sqlite3-*
+__pycache__/
+*.pyc

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CV Builder logo">
+  <rect width="64" height="64" rx="14" fill="#3d761d"/>
+  <path d="M16 13h23l9 9v29H16z" fill="#fff" opacity=".96"/>
+  <path d="M39 13v11h9" fill="#dcebd4"/>
+  <path d="M23 33h18M23 41h18M23 49h12" stroke="#3d761d" stroke-width="4" stroke-linecap="round"/>
+</svg>

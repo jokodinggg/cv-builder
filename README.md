@@ -2,7 +2,7 @@
 
 SaaS untuk membuat CV profesional. Setiap pengguna punya akun sendiri, bisa menyimpan banyak CV, mengatur urutan isi dengan drag and drop, melihat pratinjau A4 langsung (dua halaman tampil berdampingan), mengekspor PDF, dan menerjemahkan CV Indonesia ⇄ Inggris.
 
-Versi lama (HTML statis + localStorage) disimpan di [`legacy/`](legacy/) sebagai referensi.
+Versi lama (HTML statis + server SQLite Python) disimpan di [`legacy/`](legacy/) sebagai referensi. Jalankan dengan `python3 legacy/server.py` (port 20129). Database-nya sekarang di `legacy/cv_builder.sqlite3`; set `CV_BUILDER_DB` untuk memakai file lama.
 
 ## Fitur
 

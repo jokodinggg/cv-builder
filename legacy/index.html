@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CV Builder — Irfan Qobus Salim</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -30,8 +31,10 @@
             <label><span>Pilih target lamaran</span>
               <select id="cv-type" aria-label="Pilih tipe CV">
                 <option value="ai-engineer">AI Engineer</option>
+                <option value="ai-engineer-llm">AI Engineer (LLM)</option>
                 <option value="web-developer">Web Developer</option>
                 <option value="full-stack-developer">Full-stack Developer</option>
+                <option value="iot-engineer">IoT Engineer</option>
               </select>
             </label>
             <p class="help-text">Setiap tipe memiliki keterampilan, pengalaman, proyek, prestasi, dan pendidikan yang disimpan terpisah.</p>
@@ -50,6 +53,11 @@
               <label>LinkedIn<input data-bind="linkedin" value="linkedin.com/in/irfanqs" /></label>
               <label>GitHub<input data-bind="github" value="github.com/irfanqs" /></label>
             </div>
+          </fieldset>
+
+          <fieldset data-preview-target="#preview-summary">
+            <legend>Ringkasan Profil</legend>
+            <label><span class="hint">Satu paragraf singkat tentang pengalaman dan fokus Anda</span><textarea data-bind="summary" rows="4"></textarea></label>
           </fieldset>
 
           <fieldset data-preview-target="#preview-skills">
@@ -85,7 +93,7 @@ SMA Negeri 5 Semarang | 2018 — 2021 |</textarea></label>
       <section class="preview-panel" aria-label="Pratinjau CV">
         <div class="preview-toolbar">
           <div><span class="status-dot"></span><span data-i18n="readyToPrint">Pratinjau siap dicetak</span></div>
-          <div class="toolbar-actions"><button id="translate-button" class="translate-button" type="button">Translate to English</button><button id="print-button" type="button">Download PDF</button></div>
+          <div class="toolbar-actions"><button id="save-button" class="save-button" type="button" data-i18n="saveProfile">Simpan Profil</button><button id="translate-button" class="translate-button" type="button">Translate to English</button><button id="print-button" type="button">Download PDF</button></div>
         </div>
 
         <article id="cv-sheet" class="cv-sheet">
@@ -99,15 +107,16 @@ SMA Negeri 5 Semarang | 2018 — 2021 |</textarea></label>
             </div>
           </header>
 
-          <section class="cv-section"><h3 data-i18n="skills">Keterampilan</h3><div id="preview-skills" class="skill-list"></div></section>
+          <section class="cv-section summary-section"><p id="preview-summary"></p></section>
+          <section class="cv-section education"><h3 data-i18n="education">Pendidikan</h3><div id="preview-education"></div></section>
 
           <section class="cv-section"><h3 data-i18n="experience">Pengalaman</h3><div id="preview-experiences"></div></section>
           <section class="cv-section projects-section"><h3 data-i18n="selectedProjects">Proyek Pilihan</h3><div id="preview-projects"></div></section>
           <section class="cv-section"><h3 data-i18n="achievements">Prestasi</h3><ul id="preview-achievements" class="clean-list"></ul></section>
-          <section class="cv-section education"><h3 data-i18n="education">Pendidikan</h3><div id="preview-education"></div></section>
+          <section class="cv-section"><h3 data-i18n="skills">Keterampilan</h3><div id="preview-skills" class="skill-list"></div></section>
         </article>
       </section>
     </main>
-    <script src="script.js"></script>
+    <script src="script.js?v=7"></script>
   </body>
 </html>
