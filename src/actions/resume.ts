@@ -6,7 +6,10 @@ import { createBlankContent } from "@/lib/resume/defaults";
 import { withFreshIds } from "@/lib/resume/ids";
 import * as repo from "@/lib/resume/repository";
 import { languageSchema, resumeContentSchema, type Language } from "@/lib/resume/schema";
+import { applyStrings, collectStrings } from "@/lib/resume/translate";
 import { requireUser } from "@/lib/session";
+import { defaultProvider } from "@/lib/translate/engines";
+import { translateStrings } from "@/lib/translate/providers";
 
 export type ActionResult<T = object> = ({ ok: true } & T) | { ok: false; error: string };
 
@@ -72,4 +75,28 @@ export async function deleteResumeAction(id: string): Promise<ActionResult> {
   if (!(await repo.deleteResume(user.id, id))) return { ok: false, error: NOT_FOUND };
   revalidatePath("/dashboard");
   return { ok: true };
+}
+
+const LANGUAGE_SUFFIX: Record<Language, string> = { id: " (ID)", en: " (EN)" };
+
+/** Creates a translated copy of the CV. The original stays untouched; nothing is saved on failure. */
+export async function translateResumeAction(id: string, target: Language): Promise<ActionResult<{ id: string }>> {
+  const user = await requireUser();
+  if (!languageSchema.safeParse(target).success) return { ok: false, error: "Bahasa tidak dikenal." };
+  const source = await repo.getResume(user.id, id);
+  if (!source) return { ok: false, error: NOT_FOUND };
+  const from: Language = source.language === target ? (target === "en" ? "id" : "en") : source.language;
+
+  try {
+    const strings = collectStrings(source.content);
+    const translated = await translateStrings(strings, from, target, defaultProvider());
+    const content = withFreshIds(applyStrings(source.content, translated));
+    const baseTitle = source.title.replace(/ \((ID|EN)\)$/, "");
+    const copy = await repo.createResume(user.id, { title: baseTitle + LANGUAGE_SUFFIX[target], language: target, content });
+    revalidatePath("/dashboard");
+    return { ok: true, id: copy.id };
+  } catch (error) {
+    console.error("Translation failed", error);
+    return { ok: false, error: "Terjemahan gagal. Periksa koneksi internet lalu coba lagi." };
+  }
 }
