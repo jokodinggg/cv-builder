@@ -1,10 +1,8 @@
 /**
- * Seeds a demo account with the September 2026 LLM CV, plus the profiles from the old
- * static builder when a local (untracked) legacy/ folder exists. Run: pnpm db:seed
+ * Seeds a demo account with three example CVs. Every person, company, and project here is
+ * fictional. Run: pnpm db:seed
  * Login: demo@cvbuilder.local / demo12345
  */
-import { existsSync, readFileSync } from "node:fs";
-import vm from "node:vm";
 import { auth } from "../src/lib/auth";
 import { prisma } from "../src/lib/db";
 import { newId } from "../src/lib/resume/ids";
@@ -13,135 +11,183 @@ import type { Item, ResumeContent, Section, SectionType } from "../src/lib/resum
 
 const DEMO_EMAIL = "demo@cvbuilder.local";
 const DEMO_PASSWORD = "demo12345";
-
-type LegacyProfile = {
-  form: { achievements: string; education: string };
-  experiences: { title: string; date: string; company: string; bullets: string }[];
-  projects: { title: string; tech: string; bullets: string }[];
-  skills: { category: string; details: string }[];
-};
+const DEMO_NAME = "Budi Santoso";
 
 const item = (fields: Partial<Item>): Item => ({ id: newId(), title: "", subtitle: "", date: "", detail: "", bullets: "", visible: true, ...fields });
 const section = (type: SectionType, items: Item[], pageBreakBefore = false): Section => ({ id: newId(), type, title: "", visible: true, pageBreakBefore, items });
 const lines = (value: string) => value.split("\n").map(line => line.trim()).filter(Boolean);
+const bullets = (...points: string[]) => points.join("\n");
 
-const LINKS: ResumeContent["links"] = [
+const links = (): ResumeContent["links"] => [
   { id: newId(), type: "whatsapp", value: "+6281234567890", visible: true },
   { id: newId(), type: "email", value: "budi.santoso@example.com", visible: true },
   { id: newId(), type: "linkedin", value: "linkedin.com/in/budisantoso", visible: true },
   { id: newId(), type: "github", value: "github.com/budisantoso", visible: true },
 ];
 
-function educationItems(text: string): Item[] {
-  return lines(text).map(line => {
-    const [title, date = "", detail = ""] = line.split("|").map(part => part.trim());
-    return item({ title, date, detail });
-  });
-}
+const education = () =>
+  section("education", [
+    item({ title: "S1 Teknik Informatika, Institut Teknologi Contoh", date: "2020 — 2024", detail: "IPK 3,65/4,00" }),
+    item({ title: "SMA Negeri 1 Contoh", date: "2017 — 2020" }),
+  ]);
 
-function fromLegacy(profile: LegacyProfile): ResumeContent {
-  return {
-    schemaVersion: 1,
-    personal: { fullName: "Budi Santoso", headline: "" },
-    links: LINKS.map(link => ({ ...link, id: newId() })),
-    sections: [
-      section("skills", profile.skills.map(skill => item({ title: skill.category, detail: skill.details }))),
-      section("experience", profile.experiences.map(exp => item({ title: exp.title, date: exp.date, subtitle: exp.company, bullets: exp.bullets }))),
-      section("projects", profile.projects.map(project => item({ title: project.title, detail: project.tech, bullets: project.bullets })), true),
-      section("achievements", lines(profile.form.achievements).map(title => item({ title }))),
-      section("education", educationItems(profile.form.education)),
+const cv = (sections: Section[]): ResumeContent => ({ schemaVersion: 1, personal: { fullName: DEMO_NAME, headline: "" }, links: links(), sections });
+
+const AI_ENGINEER = cv([
+  section("summary", [
+    item({
+      detail:
+        "AI Engineer dengan pengalaman membangun aplikasi Generative AI, pipeline RAG, dan model computer vision dari tahap riset hingga produksi.",
+    }),
+  ]),
+  education(),
+  section("skills", [
+    item({ title: "Programming", detail: "Python, TypeScript, SQL, Bash" }),
+    item({ title: "Generative AI & LLM", detail: "OpenAI API, Gemini API, LangChain, Prompt Engineering" }),
+    item({ title: "RAG & Vector Search", detail: "ChromaDB, FAISS, pgvector, Embeddings" }),
+    item({ title: "Machine Learning", detail: "PyTorch, TensorFlow, YOLO, OpenCV, Scikit-learn" }),
+    item({ title: "Deployment", detail: "Docker, FastAPI, Redis, Linux, Git" }),
+  ]),
+  section("experience", [
+    item({
+      title: "AI Engineer",
+      date: "Januari 2025 — Saat Ini",
+      subtitle: "PT Data Cerdas Contoh",
+      bullets: bullets(
+        "Membangun asisten tanya-jawab internal berbasis RAG untuk 2.000+ dokumen kebijakan perusahaan.",
+        "Menurunkan biaya pemanggilan LLM sekitar 40% dengan semantic cache dan pemilihan model per jenis pertanyaan.",
+        "Menyusun evaluasi otomatis untuk mengukur akurasi jawaban sebelum setiap rilis.",
+      ),
+    }),
+    item({
+      title: "Machine Learning Intern",
+      date: "Juli 2023 — Desember 2023",
+      subtitle: "Startup Visi Contoh | Internship",
+      bullets: bullets(
+        "Melatih model object detection untuk menghitung produk di rak toko dengan mAP 0,87.",
+        "Mengoptimalkan model agar berjalan real-time di perangkat edge.",
+      ),
+    }),
+  ]),
+  section(
+    "projects",
+    [
+      item({
+        title: "Asisten Dokumen Hukum",
+        detail: "Python, FastAPI, LangChain, pgvector, OpenAI API",
+        bullets: bullets(
+          "Mengembangkan chatbot yang menjawab pertanyaan dari dokumen hukum beserta kutipan pasal sumbernya.",
+          "Menerapkan hybrid search (BM25 + vector) untuk meningkatkan relevansi hasil pencarian.",
+        ),
+      }),
+      item({
+        title: "Klasifikasi Tiket Layanan Pelanggan",
+        detail: "Python, Scikit-learn, FAISS, Pandas",
+        bullets: bullets(
+          "Mengklasifikasikan tiket ke 12 kategori dengan retrieval contoh tiket historis.",
+          "Mengekspor hasil klasifikasi ke Excel untuk tim operasional.",
+        ),
+      }),
+      item({
+        title: "Deteksi Kematangan Buah",
+        detail: "Python, YOLO, Raspberry Pi, OpenCV",
+        bullets: bullets(
+          "Membuat sistem deteksi kematangan buah secara real-time untuk otomasi panen.",
+          "Melakukan training, evaluasi, dan deployment model pada perangkat edge.",
+        ),
+      }),
     ],
-  };
-}
+    true,
+  ),
+  section("achievements", lines("Juara 2 Hackathon AI Nasional Contoh 2024\nFinalis Kompetisi Data Science Contoh 2023").map(title => item({ title }))),
+]);
 
-const LEGACY_SCRIPT = new URL("../legacy/script.js", import.meta.url);
+const WEB_DEVELOPER = cv([
+  education(),
+  section("skills", [
+    item({ title: "Frontend", detail: "React, Next.js, TypeScript, Tailwind CSS" }),
+    item({ title: "Backend", detail: "Node.js, NestJS, REST API, PostgreSQL, Prisma" }),
+    item({ title: "Tools", detail: "Git, Docker, Figma, Vercel" }),
+  ]),
+  section("experience", [
+    item({
+      title: "Frontend Developer",
+      date: "Maret 2024 — Saat Ini",
+      subtitle: "PT Toko Daring Contoh",
+      bullets: bullets(
+        "Membangun ulang halaman checkout dengan Next.js sehingga waktu muat turun dari 4,1 detik menjadi 1,6 detik.",
+        "Menyusun design system berisi 40+ komponen yang dipakai tiga tim produk.",
+      ),
+    }),
+    item({
+      title: "Web Developer",
+      date: "Agustus 2022 — Februari 2024",
+      subtitle: "Freelance",
+      bullets: bullets("Membuat 15+ website company profile dan toko online untuk UMKM.", "Mengelola deployment, domain, dan perawatan website klien."),
+    }),
+  ]),
+  section("projects", [
+    item({
+      title: "Aplikasi Reservasi Klinik",
+      detail: "Next.js, NestJS, PostgreSQL",
+      bullets: bullets("Membuat sistem antrean dan reservasi online untuk klinik dengan notifikasi WhatsApp.", "Dipakai oleh 3 cabang klinik dengan 500+ reservasi per bulan."),
+    }),
+    item({
+      title: "Dashboard Penjualan",
+      detail: "React, Chart.js, Node.js",
+      bullets: bullets("Menampilkan ringkasan penjualan harian dan stok barang secara real-time."),
+    }),
+  ]),
+  section("achievements", lines("Sertifikasi Front-End Web Developer Contoh 2023").map(title => item({ title }))),
+]);
 
-function loadLegacyProfiles(): Record<string, LegacyProfile> | null {
-  if (!existsSync(LEGACY_SCRIPT)) return null;
-  const source = readFileSync(LEGACY_SCRIPT, "utf8");
-  const data = source.slice(source.indexOf("const AI_ENGINEER_PROFILE"), source.indexOf("let profiles"));
-  const context: Record<string, unknown> = {};
-  vm.runInNewContext(`${data}\nthis.result = { ai: AI_ENGINEER_PROFILE, web: WEB_DEVELOPER_PROFILE, full: FULL_STACK_DEVELOPER_PROFILE };`, context);
-  return context.result as Record<string, LegacyProfile>;
-}
-
-const LLM_CV: ResumeContent = {
-  schemaVersion: 1,
-  personal: { fullName: "Budi Santoso", headline: "" },
-  links: LINKS,
-  sections: [
-    section("education", educationItems("S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |")),
-    section("skills", [
-      item({ title: "Programming", detail: "Python, JavaScript, TypeScript, C/C++, Bash" }),
-      item({ title: "Generative AI & LLM", detail: "Gemini API, Groq API, OpenAI API, AI Application Integration, Prompt Engineering" }),
-      item({ title: "RAG & Information Retrieval", detail: "LangChain, ChromaDB, FAISS, OpenAI Embeddings, Vector Search, Semantic Retrieval" }),
-      item({ title: "AI & Machine Learning", detail: "YOLOv11, MobileNet, TensorFlow, OpenCV, Scikit-learn, NumPy, Pandas" }),
-      item({ title: "Backend & Data", detail: "NestJS, Next.js, REST API, PostgreSQL, MySQL, SQLite, Prisma" }),
-      item({ title: "Systems & Deployment", detail: "Linux, Docker, Redis, Bull Queue, Git" }),
-    ]),
-    section("experience", [
-      item({
-        title: "Researcher",
-        date: "Maret 2024 — Februari 2025",
-        subtitle: "Avalon AI Group (PT. Automasi Visi Analitika Optima) | Internship",
-        bullets:
-          "Melakukan riset mendalam mengenai Large Language Models (LLM) dan Computer Vision untuk mengembangkan kapabilitas AI.\nBerkolaborasi dengan tim lintas fungsi untuk mengintegrasikan hasil riset ke dalam aplikasi praktis.\nMengikuti perkembangan teknologi dan tren AI terbaru untuk meningkatkan metodologi penelitian.",
-      }),
-      item({
-        title: "Full-stack Developer & AI Engineer",
-        date: "November 2025 — Saat Ini",
-        subtitle: "Freelance",
-        bullets:
-          "Mengerjakan proyek berbasis kebutuhan klien yang mencakup Generative AI, machine learning, computer vision, web application, IoT, dan integrasi API.\nMengembangkan solusi dari analisis kebutuhan, implementasi, integrasi layanan AI, pengujian, hingga deployment untuk kebutuhan individu dan bisnis.",
-      }),
-    ]),
-    section(
-      "projects",
-      [
-        item({
-          title: "AI Generation Platform",
-          detail: "NestJS, Next.js 14, TypeScript, PostgreSQL, Prisma, Redis, Bull Queue, Gemini API, Cloudinary, Docker",
-          bullets:
-            "Mengembangkan platform Generative AI full-stack untuk text-to-image, image-to-image, image-to-video, dan text-to-speech menggunakan Gemini API.\nMembangun backend berbasis NestJS dengan PostgreSQL, Prisma, Redis, dan Bull Queue untuk mengelola proses generasi AI secara asynchronous.\nMengimplementasikan autentikasi JWT, bcrypt, sistem credits, generation history, rate limiting, serta integrasi Cloudinary untuk penyimpanan hasil generasi.",
-        }),
-        item({
-          title: "CareerAI RAG Assistant",
-          detail: "Python, Flask, LangChain, OpenAI Embeddings, ChromaDB",
-          bullets:
-            "Mengembangkan aplikasi career assistant yang menggunakan Retrieval-Augmented Generation untuk menghasilkan jawaban berbasis knowledge base karier dan skill matching.\nMembangun pipeline indexing dengan OpenAI embeddings dan persistent ChromaDB vector store, termasuk history-aware query rewriting dan retrieval context yang relevan.\nMenggunakan prompt terarah untuk menjaga jawaban LLM tetap grounded pada konteks yang tersedia.",
-        }),
-        item({
-          title: "RAG Ticket Classifier",
-          detail: "Python, Flask, OpenAI Embeddings, FAISS, NumPy, Pandas",
-          bullets:
-            "Mengembangkan aplikasi klasifikasi tiket IT dari file Excel dengan retrieval contoh tiket historis menggunakan FAISS dan OpenAI embeddings.\nMembangun semantic cache dan deduplikasi vector entry berbasis normalized-text hash untuk mengurangi pemanggilan LLM berulang.\nMengintegrasikan context retrieval ke prompt klasifikasi terkontrol dan mengekspor hasil klasifikasi ke Excel.",
-        }),
-        item({
-          title: "Sistem Penyerbuk Kelapa Sawit untuk Integrasi Drone",
-          detail: "Python, YOLOv11, Raspberry Pi 5, Computer Vision, Sensor, Aktuator",
-          bullets:
-            "Mengembangkan solusi AI/ML untuk mendeteksi kematangan bunga betina kelapa sawit secara real-time sebagai dasar otomasi proses bisnis di bidang perkebunan.\nMelakukan training, evaluasi, optimasi, dan deployment model object detection pada edge device Raspberry Pi 5.\nMengintegrasikan kamera, sensor ToF, monitoring volume pollen, dan aktuator untuk mendukung sistem otomasi.",
-        }),
-      ],
-      true,
-    ),
-    section("achievements", lines("Top 30 Ericsson Hackathon 2025\nTop 10 Hackathon Sawit Nasional 2025\nPenerima Pendanaan PKM-KC 2025").map(title => item({ title }))),
-  ],
-};
+const FULL_STACK = cv([
+  education(),
+  section("skills", [
+    item({ title: "Bahasa", detail: "TypeScript, JavaScript, Python, Go" }),
+    item({ title: "Framework", detail: "Next.js, NestJS, Express, FastAPI" }),
+    item({ title: "Data & Infrastruktur", detail: "PostgreSQL, Redis, Docker, GitHub Actions" }),
+  ]),
+  section("experience", [
+    item({
+      title: "Full-stack Developer",
+      date: "Juni 2023 — Saat Ini",
+      subtitle: "PT Logistik Contoh",
+      bullets: bullets(
+        "Mengembangkan aplikasi pelacakan pengiriman untuk 20.000+ paket per hari.",
+        "Merancang API dan skema database untuk modul penagihan pelanggan.",
+        "Menyiapkan CI/CD sehingga rilis bisa dilakukan beberapa kali sehari.",
+      ),
+    }),
+  ]),
+  section("projects", [
+    item({
+      title: "Platform Kursus Online",
+      detail: "Next.js, NestJS, PostgreSQL, Redis",
+      bullets: bullets("Membangun platform kursus dengan video, kuis, dan sertifikat otomatis.", "Menangani pembayaran dan langganan bulanan."),
+    }),
+    item({
+      title: "Bot Pengingat Tagihan",
+      detail: "Node.js, WhatsApp API, PostgreSQL",
+      bullets: bullets("Mengirim pengingat tagihan otomatis ke pelanggan sesuai jadwal jatuh tempo."),
+    }),
+  ]),
+  section("achievements", lines("Juara 1 Lomba Web Development Contoh 2022").map(title => item({ title }))),
+]);
 
 async function main() {
   let user = await prisma.user.findUnique({ where: { email: DEMO_EMAIL } });
   if (!user) {
-    await auth.api.signUpEmail({ body: { email: DEMO_EMAIL, password: DEMO_PASSWORD, name: "Budi Santoso" } });
+    await auth.api.signUpEmail({ body: { email: DEMO_EMAIL, password: DEMO_PASSWORD, name: DEMO_NAME } });
     user = await prisma.user.findUniqueOrThrow({ where: { email: DEMO_EMAIL } });
   }
   await prisma.resume.deleteMany({ where: { userId: user.id } });
 
-  const legacy = loadLegacyProfiles();
-  const cvs: [string, ResumeContent][] = [["LLM Engineer — Sep 2026", LLM_CV]];
-  if (legacy) {
-    cvs.push(["AI Engineer", fromLegacy(legacy.ai)], ["Web Developer", fromLegacy(legacy.web)], ["Full-stack Developer", fromLegacy(legacy.full)]);
-  }
+  const cvs: [string, ResumeContent][] = [
+    ["AI Engineer — Contoh", AI_ENGINEER],
+    ["Web Developer — Contoh", WEB_DEVELOPER],
+    ["Full-stack Developer — Contoh", FULL_STACK],
+  ];
   for (const [title, content] of cvs.reverse()) {
     await createResume(user.id, { title, language: "id", content });
   }
