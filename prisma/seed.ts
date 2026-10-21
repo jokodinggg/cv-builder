@@ -26,10 +26,10 @@ const section = (type: SectionType, items: Item[], pageBreakBefore = false): Sec
 const lines = (value: string) => value.split("\n").map(line => line.trim()).filter(Boolean);
 
 const LINKS: ResumeContent["links"] = [
-  { id: newId(), type: "whatsapp", value: "+6281333543975", visible: true },
-  { id: newId(), type: "email", value: "irfanqobus.01@gmail.com", visible: true },
-  { id: newId(), type: "linkedin", value: "linkedin.com/in/irfanqs", visible: true },
-  { id: newId(), type: "github", value: "github.com/irfanqs", visible: true },
+  { id: newId(), type: "whatsapp", value: "+6281234567890", visible: true },
+  { id: newId(), type: "email", value: "budi.santoso@example.com", visible: true },
+  { id: newId(), type: "linkedin", value: "linkedin.com/in/budisantoso", visible: true },
+  { id: newId(), type: "github", value: "github.com/budisantoso", visible: true },
 ];
 
 function educationItems(text: string): Item[] {
@@ -42,7 +42,7 @@ function educationItems(text: string): Item[] {
 function fromLegacy(profile: LegacyProfile): ResumeContent {
   return {
     schemaVersion: 1,
-    personal: { fullName: "Irfan Qobus Salim", headline: "" },
+    personal: { fullName: "Budi Santoso", headline: "" },
     links: LINKS.map(link => ({ ...link, id: newId() })),
     sections: [
       section("skills", profile.skills.map(skill => item({ title: skill.category, detail: skill.details }))),
@@ -67,7 +67,7 @@ function loadLegacyProfiles(): Record<string, LegacyProfile> | null {
 
 const LLM_CV: ResumeContent = {
   schemaVersion: 1,
-  personal: { fullName: "Irfan Qobus Salim", headline: "" },
+  personal: { fullName: "Budi Santoso", headline: "" },
   links: LINKS,
   sections: [
     section("education", educationItems("S1 Teknologi Informasi, Institut Teknologi Sepuluh Nopember | 2022 — 2026 | IPK 3,74/4,00\nSMA Negeri 5 Semarang | 2018 — 2021 |")),
@@ -132,7 +132,7 @@ const LLM_CV: ResumeContent = {
 async function main() {
   let user = await prisma.user.findUnique({ where: { email: DEMO_EMAIL } });
   if (!user) {
-    await auth.api.signUpEmail({ body: { email: DEMO_EMAIL, password: DEMO_PASSWORD, name: "Irfan Qobus Salim" } });
+    await auth.api.signUpEmail({ body: { email: DEMO_EMAIL, password: DEMO_PASSWORD, name: "Budi Santoso" } });
     user = await prisma.user.findUniqueOrThrow({ where: { email: DEMO_EMAIL } });
   }
   await prisma.resume.deleteMany({ where: { userId: user.id } });
