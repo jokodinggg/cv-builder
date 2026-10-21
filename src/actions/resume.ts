@@ -6,16 +6,16 @@ import { createBlankContent } from "@/lib/resume/defaults";
 import { withFreshIds } from "@/lib/resume/ids";
 import * as repo from "@/lib/resume/repository";
 import { describeContentError, languageSchema, resumeContentSchema, type Language } from "@/lib/resume/schema";
-import { applyStrings, collectStrings } from "@/lib/resume/translate";
+import { languageCopyTitle } from "@/lib/resume/language-copy";
 import { requireUser } from "@/lib/session";
-import { defaultProvider } from "@/lib/translate/engines";
-import { translateStrings } from "@/lib/translate/providers";
 
 export type ActionResult<T = object> = ({ ok: true } & T) | { ok: false; error: string };
 
 const NOT_FOUND = "CV tidak ditemukan.";
 
-export async function createResumeAction(formData: FormData): Promise<void> {
+export type CreateState = { error: string | null };
+
+export async function createResumeAction(_previous: CreateState, formData: FormData): Promise<CreateState> {
   const user = await requireUser();
   const language: Language = languageSchema.catch("id").parse(formData.get("language"));
   const sourceId = String(formData.get("sourceId") ?? "");
@@ -24,15 +24,15 @@ export async function createResumeAction(formData: FormData): Promise<void> {
   let content = createBlankContent(language);
   if (sourceId) {
     const source = await repo.getResume(user.id, sourceId);
-    if (!source) throw new Error(NOT_FOUND);
+    if (!source) return { error: NOT_FOUND };
     content = withFreshIds(source.content);
   } else if (user.name) {
     content.personal.fullName = user.name;
   }
 
-  const created = await repo.createResume(user.id, { title, language, content });
-  revalidatePath("/dashboard");
-  redirect(`/cv/${created.id}`);
+  const result = await createOrLimit(() => repo.createResume(user.id, { title, language, content }));
+  if (!result.ok) return { error: result.error };
+  redirect(`/cv/${result.id}`);
 }
 
 export async function saveResumeAction(id: string, input: unknown): Promise<ActionResult<{ updatedAt: string }>> {
@@ -61,13 +61,9 @@ export async function duplicateResumeAction(id: string): Promise<ActionResult<{ 
   const user = await requireUser();
   const source = await repo.getResume(user.id, id);
   if (!source) return { ok: false, error: NOT_FOUND };
-  const copy = await repo.createResume(user.id, {
-    title: `${source.title} (salinan)`,
-    language: source.language,
-    content: withFreshIds(source.content),
-  });
-  revalidatePath("/dashboard");
-  return { ok: true, id: copy.id };
+  return createOrLimit(() =>
+    repo.createResume(user.id, { title: `${source.title} (salinan)`, language: source.language, content: withFreshIds(source.content) }),
+  );
 }
 
 export async function deleteResumeAction(id: string): Promise<ActionResult> {
@@ -77,26 +73,27 @@ export async function deleteResumeAction(id: string): Promise<ActionResult> {
   return { ok: true };
 }
 
-const LANGUAGE_SUFFIX: Record<Language, string> = { id: " (ID)", en: " (EN)" };
-
-/** Creates a translated copy of the CV. The original stays untouched; nothing is saved on failure. */
-export async function translateResumeAction(id: string, target: Language): Promise<ActionResult<{ id: string }>> {
+/**
+ * Copies the CV into a new CV in the other language. The text stays as-is for the user to rewrite;
+ * default section titles switch to the target language automatically.
+ */
+export async function createLanguageCopyAction(id: string, target: Language): Promise<ActionResult<{ id: string }>> {
   const user = await requireUser();
   if (!languageSchema.safeParse(target).success) return { ok: false, error: "Bahasa tidak dikenal." };
   const source = await repo.getResume(user.id, id);
   if (!source) return { ok: false, error: NOT_FOUND };
-  const from: Language = source.language === target ? (target === "en" ? "id" : "en") : source.language;
+  return createOrLimit(() =>
+    repo.createResume(user.id, { title: languageCopyTitle(source.title, target), language: target, content: withFreshIds(source.content) }),
+  );
+}
 
+async function createOrLimit(create: () => Promise<repo.ResumeRecord>): Promise<ActionResult<{ id: string }>> {
   try {
-    const strings = collectStrings(source.content);
-    const translated = await translateStrings(strings, from, target, defaultProvider());
-    const content = withFreshIds(applyStrings(source.content, translated));
-    const baseTitle = source.title.replace(/ \((ID|EN)\)$/, "");
-    const copy = await repo.createResume(user.id, { title: baseTitle + LANGUAGE_SUFFIX[target], language: target, content });
+    const created = await create();
     revalidatePath("/dashboard");
-    return { ok: true, id: copy.id };
+    return { ok: true, id: created.id };
   } catch (error) {
-    console.error("Translation failed", error);
-    return { ok: false, error: "Terjemahan gagal. Periksa koneksi internet lalu coba lagi." };
+    if (error instanceof repo.ResumeLimitError) return { ok: false, error: error.message };
+    throw error;
   }
 }

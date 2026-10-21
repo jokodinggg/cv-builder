@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { useTurnstile } from "./use-turnstile";
 
 type Mode = "login" | "register";
 
@@ -12,11 +13,14 @@ function safeNext(value: string | null): string {
   return value && value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard";
 }
 
-export function AuthForm({ mode, googleEnabled }: { mode: Mode; googleEnabled: boolean }) {
+type Props = { mode: Mode; googleEnabled: boolean; captchaSiteKey: string | null };
+
+export function AuthForm({ mode, googleEnabled, captchaSiteKey }: Props) {
   const router = useRouter();
   const next = safeNext(useSearchParams().get("next"));
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const captcha = useTurnstile(captchaSiteKey);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,10 +29,20 @@ export function AuthForm({ mode, googleEnabled }: { mode: Mode; googleEnabled: b
     const password = String(form.get("password") ?? "");
     setPending(true);
     setError(null);
+    const token = await captcha.getToken();
+    if (captcha.enabled && !token) {
+      setPending(false);
+      captcha.reset();
+      setError("Verifikasi keamanan gagal. Muat ulang halaman lalu coba lagi.");
+      return;
+    }
+    const fetchOptions = token ? { headers: { "x-captcha-response": token } } : undefined;
     const result =
       mode === "login"
-        ? await authClient.signIn.email({ email, password })
-        : await authClient.signUp.email({ email, password, name: String(form.get("name") ?? "").trim() });
+        ? await authClient.signIn.email({ email, password, fetchOptions })
+        : await authClient.signUp.email({ email, password, name: String(form.get("name") ?? "").trim(), fetchOptions });
+    // Turnstile tokens are single-use.
+    captcha.reset();
     setPending(false);
     if (result.error) {
       setError(result.error.message ?? "Terjadi kesalahan. Coba lagi.");
@@ -74,6 +88,7 @@ export function AuthForm({ mode, googleEnabled }: { mode: Mode; googleEnabled: b
           />
           {mode === "register" && <span className="mt-1 block font-medium text-muted">Minimal 8 karakter.</span>}
         </label>
+        <div ref={captcha.containerRef} className="mb-3 empty:hidden" />
         {error && <p role="alert" className="mb-3 rounded-lg bg-[#feecec] px-3 py-2 text-sm text-danger">{error}</p>}
         <button type="submit" disabled={pending} className="btn-primary w-full py-3">
           {pending ? "Memproses…" : mode === "login" ? "Masuk" : "Daftar"}

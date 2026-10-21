@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { deleteResumeAction, duplicateResumeAction, updateResumeMetaAction } from "@/actions/resume";
 import type { ResumeSummary } from "@/lib/resume/repository";
-import { TranslateButton } from "./translate-button";
+import { LanguageCopyButton } from "./language-copy-button";
 
 const dateFormat = new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" });
 
@@ -52,7 +52,7 @@ export function ResumeCard({ resume }: { resume: ResumeSummary }) {
         >
           Ganti nama
         </button>
-        <TranslateButton resumeId={resume.id} language={resume.language} className="btn-ghost px-3 py-1.5 text-xs" />
+        <LanguageCopyButton resumeId={resume.id} language={resume.language} className="btn-ghost px-3 py-1.5 text-xs" />
         <button
           type="button"
           disabled={pending}

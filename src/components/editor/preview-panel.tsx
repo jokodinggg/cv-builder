@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PaginatedCv, type CvLayout } from "@/components/cv/paginated-cv";
-import { TranslateButton } from "@/components/dashboard/translate-button";
+import { LanguageCopyButton } from "@/components/dashboard/language-copy-button";
 import type { Language, ResumeContent } from "@/lib/resume/schema";
 
 const A4_WIDTH_PX = (210 / 25.4) * 96;
@@ -121,7 +121,7 @@ export function PreviewPanel({ resumeId, content, language, activeKey, flush }: 
             </option>
           ))}
         </select>
-        <TranslateButton resumeId={resumeId} language={language} beforeRun={flush} className="btn-secondary py-2 text-xs" />
+        <LanguageCopyButton resumeId={resumeId} language={language} beforeRun={flush} className="btn-secondary py-2 text-xs" />
         <button type="button" className="btn-secondary py-2 text-xs" disabled={busy !== null} onClick={printInBrowser}>
           Cetak via browser
         </button>

@@ -26,7 +26,8 @@ services:
       NEXT_PUBLIC_APP_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
       # Headless Chrome inside the container reaches the app on its own port.
       PDF_RENDER_ORIGIN: http://localhost:3000
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY:-}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
 

@@ -1,7 +1,7 @@
 import { AppHeader } from "@/components/dashboard/app-header";
 import { NewResumeDialog } from "@/components/dashboard/new-resume-dialog";
 import { ResumeCard } from "@/components/dashboard/resume-card";
-import { listResumes } from "@/lib/resume/repository";
+import { listResumes, MAX_RESUMES_PER_USER } from "@/lib/resume/repository";
 import { requireUser } from "@/lib/session";
 
 export const metadata = { title: "CV saya" };
@@ -18,14 +18,19 @@ export default async function DashboardPage() {
             <h1 className="font-display text-3xl font-extrabold tracking-tight">CV saya</h1>
             <p className="mt-1 text-muted">Simpan satu CV per target lamaran. Salin CV lama untuk mulai lebih cepat.</p>
           </div>
-          <NewResumeDialog resumes={resumes} />
+          <div className="flex items-center gap-3">
+            <span className={`text-sm font-bold ${resumes.length >= MAX_RESUMES_PER_USER ? "text-danger" : "text-muted"}`}>
+              {resumes.length}/{MAX_RESUMES_PER_USER} CV
+            </span>
+            <NewResumeDialog resumes={resumes} limit={MAX_RESUMES_PER_USER} />
+          </div>
         </div>
         {resumes.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[#c9d3c6] bg-white p-10 text-center">
             <h2 className="font-display text-xl font-bold">Belum ada CV</h2>
             <p className="mx-auto mt-2 max-w-md text-muted">Buat CV pertama Anda. Kami isi dengan contoh bagian yang bisa langsung Anda ganti.</p>
             <div className="mt-5">
-              <NewResumeDialog resumes={resumes} label="Buat CV pertama" />
+              <NewResumeDialog resumes={resumes} limit={MAX_RESUMES_PER_USER} label="Buat CV pertama" />
             </div>
           </div>
         ) : (

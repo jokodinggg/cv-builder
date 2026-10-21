@@ -14,7 +14,7 @@ import { SectionEditor } from "./section-editor";
 import { SortableList } from "./sortable-list";
 import { useResumeState, type SaveState } from "./use-resume-state";
 
-type Props = { id: string; title: string; language: Language; content: ResumeContent; recovered?: boolean };
+type Props = { id: string; title: string; language: Language; content: ResumeContent; recovered?: boolean; languageCopy?: boolean };
 
 const SAVE_LABEL: Record<SaveState, string> = {
   saved: "Tersimpan",
@@ -23,7 +23,7 @@ const SAVE_LABEL: Record<SaveState, string> = {
   error: "Gagal menyimpan",
 };
 
-export function EditorShell({ id, title: initialTitle, language: initialLanguage, content: initialContent, recovered = false }: Props) {
+export function EditorShell({ id, title: initialTitle, language: initialLanguage, content: initialContent, recovered = false, languageCopy = false }: Props) {
   const { content, update, saveState, saveError, flush } = useResumeState(id, initialContent);
   const [title, setTitle] = useState(initialTitle);
   const [savedTitle, setSavedTitle] = useState(initialTitle);
@@ -84,6 +84,13 @@ export function EditorShell({ id, title: initialTitle, language: initialLanguage
             )}
           </span>
         </header>
+        {languageCopy && (
+          <p role="status" className="bg-brand-soft px-4 py-1.5 text-sm text-brand-strong">
+            {language === "en"
+              ? "Ini salinan versi bahasa Inggris. Judul bagian sudah berbahasa Inggris; tulis ulang isi tiap kolom dalam bahasa Inggris."
+              : "Ini salinan versi bahasa Indonesia. Judul bagian sudah berbahasa Indonesia; tulis ulang isi tiap kolom dalam bahasa Indonesia."}
+          </p>
+        )}
         {recovered && (
           <p role="status" className="bg-[#fff6dc] px-4 py-1.5 text-sm text-[#7a5a00]">
             Sebagian data CV ini rusak dan sudah diperbaiki otomatis (teks terlalu panjang dipotong, entri tidak valid dibuang). Periksa isinya sebelum mengedit.
