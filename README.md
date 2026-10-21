@@ -2,8 +2,6 @@
 
 SaaS untuk membuat CV profesional. Setiap pengguna punya akun sendiri, bisa menyimpan hingga 10 CV, mengatur urutan isi dengan drag and drop, melihat pratinjau A4 langsung (dua halaman tampil berdampingan), mengekspor PDF, dan membuat versi bahasa Inggris/Indonesia dari CV-nya.
 
-Versi lama (HTML statis + server SQLite Python) disimpan di [`legacy/`](legacy/) sebagai referensi. Jalankan dengan `python3 legacy/server.py` (port 20129). Database-nya sekarang di `legacy/cv_builder.sqlite3`; set `CV_BUILDER_DB` untuk memakai file lama.
-
 ## Fitur
 
 | Fitur | Keterangan |
@@ -42,7 +40,7 @@ pnpm install
 cp .env.example .env            # lalu isi DATABASE_URL, DIRECT_URL, BETTER_AUTH_SECRET
 createdb cv_builder
 pnpm db:migrate                 # buat tabel
-pnpm db:seed                    # opsional: akun demo dengan 4 CV contoh
+pnpm db:seed                    # opsional: akun demo dengan CV contoh
 pnpm dev
 ```
 

@@ -1,9 +1,9 @@
 /**
- * Seeds a demo account with the CV profiles from the legacy static builder plus the
- * September 2026 LLM CV. Run: pnpm db:seed
+ * Seeds a demo account with the September 2026 LLM CV, plus the profiles from the old
+ * static builder when a local (untracked) legacy/ folder exists. Run: pnpm db:seed
  * Login: demo@cvbuilder.local / demo12345
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import vm from "node:vm";
 import { auth } from "../src/lib/auth";
 import { prisma } from "../src/lib/db";
@@ -54,8 +54,11 @@ function fromLegacy(profile: LegacyProfile): ResumeContent {
   };
 }
 
-function loadLegacyProfiles(): Record<string, LegacyProfile> {
-  const source = readFileSync(new URL("../legacy/script.js", import.meta.url), "utf8");
+const LEGACY_SCRIPT = new URL("../legacy/script.js", import.meta.url);
+
+function loadLegacyProfiles(): Record<string, LegacyProfile> | null {
+  if (!existsSync(LEGACY_SCRIPT)) return null;
+  const source = readFileSync(LEGACY_SCRIPT, "utf8");
   const data = source.slice(source.indexOf("const AI_ENGINEER_PROFILE"), source.indexOf("let profiles"));
   const context: Record<string, unknown> = {};
   vm.runInNewContext(`${data}\nthis.result = { ai: AI_ENGINEER_PROFILE, web: WEB_DEVELOPER_PROFILE, full: FULL_STACK_DEVELOPER_PROFILE };`, context);
@@ -135,12 +138,10 @@ async function main() {
   await prisma.resume.deleteMany({ where: { userId: user.id } });
 
   const legacy = loadLegacyProfiles();
-  const cvs: [string, ResumeContent][] = [
-    ["LLM Engineer — Sep 2026", LLM_CV],
-    ["AI Engineer", fromLegacy(legacy.ai)],
-    ["Web Developer", fromLegacy(legacy.web)],
-    ["Full-stack Developer", fromLegacy(legacy.full)],
-  ];
+  const cvs: [string, ResumeContent][] = [["LLM Engineer — Sep 2026", LLM_CV]];
+  if (legacy) {
+    cvs.push(["AI Engineer", fromLegacy(legacy.ai)], ["Web Developer", fromLegacy(legacy.web)], ["Full-stack Developer", fromLegacy(legacy.full)]);
+  }
   for (const [title, content] of cvs.reverse()) {
     await createResume(user.id, { title, language: "id", content });
   }
