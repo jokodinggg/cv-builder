@@ -21,6 +21,7 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: postgresql://cvbuilder:cvbuilder@db:5432/cv_builder
+      DIRECT_URL: postgresql://cvbuilder:cvbuilder@db:5432/cv_builder
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
       NEXT_PUBLIC_APP_URL: ${BETTER_AUTH_URL:-http://localhost:3000}

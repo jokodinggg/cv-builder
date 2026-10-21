@@ -1,33 +1,31 @@
 import "server-only";
 import { existsSync } from "node:fs";
-import puppeteer, { type Browser, type Page } from "puppeteer-core";
+import puppeteer, { type Browser, type LaunchOptions, type Page } from "puppeteer-core";
 import { createLimiter, withDeadline } from "@/lib/async";
+import { pickChromeSource } from "./chrome-source";
 import { isAllowedRequest } from "./request-filter";
 
-const CHROME_CANDIDATES = [
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  "/Applications/Chromium.app/Contents/MacOS/Chromium",
-  "/usr/bin/chromium",
-  "/usr/bin/chromium-browser",
-  "/usr/bin/google-chrome",
-  "/usr/bin/google-chrome-stable",
-  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-];
+const BASE_ARGS = ["--no-sandbox", "--disable-dev-shm-usage", "--font-render-hinting=none"];
 
-export function resolveChromePath(): string | null {
-  const fromEnv = process.env.CHROME_EXECUTABLE_PATH?.trim();
-  if (fromEnv) return fromEnv;
-  return CHROME_CANDIDATES.find(path => existsSync(path)) ?? null;
+async function launchOptions(): Promise<LaunchOptions> {
+  const source = pickChromeSource(process.env, existsSync);
+  if (!source) throw new Error("Chrome/Chromium tidak ditemukan di server. Set CHROME_EXECUTABLE_PATH.");
+  if (source.kind === "path") return { executablePath: source.path, headless: true, args: BASE_ARGS };
+  // Loaded only on serverless: it unpacks a Linux Chromium into /tmp on first use.
+  const { default: chromium } = await import("@sparticuz/chromium");
+  return {
+    executablePath: await chromium.executablePath(),
+    headless: "shell",
+    args: await puppeteer.defaultArgs({ args: [...chromium.args, "--font-render-hinting=none"], headless: "shell" }),
+  };
 }
 
 let browserPromise: Promise<Browser> | null = null;
 
 async function getBrowser(): Promise<Browser> {
   if (!browserPromise) {
-    const executablePath = resolveChromePath();
-    if (!executablePath) throw new Error("Chrome/Chromium tidak ditemukan di server. Set CHROME_EXECUTABLE_PATH.");
-    browserPromise = puppeteer
-      .launch({ executablePath, headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage", "--font-render-hinting=none"] })
+    browserPromise = launchOptions()
+      .then(options => puppeteer.launch(options))
       .then(browser => {
         browser.on("disconnected", () => (browserPromise = null));
         return browser;

@@ -12,6 +12,6 @@ export default defineConfig({
     include: ["src/**/*.test.ts"],
     globalSetup: ["./vitest.global-setup.ts"],
     // DB tests always run against the dedicated test database, never the dev one.
-    env: testDatabaseUrl ? { TEST_DATABASE_URL: testDatabaseUrl, DATABASE_URL: testDatabaseUrl } : {},
+    env: testDatabaseUrl ? { TEST_DATABASE_URL: testDatabaseUrl, DATABASE_URL: testDatabaseUrl, DIRECT_URL: testDatabaseUrl } : {},
   },
 });
