@@ -19,7 +19,7 @@
 - Link hrefs only `http:`, `https:`, `mailto:`, `tel:`.
 - A4 sheet 210×297 mm; content margins 16 mm top/bottom, 18 mm left/right.
 - Autosave debounce 800 ms.
-- PDF filename `CV_<Full Name>_<MON><YY>.pdf` (e.g. `CV_Irfan Qobus Salim_OCT26.pdf`).
+- PDF filename `CV_<Full Name>_<MON><YY>.pdf` (e.g. `CV_Budi Santoso_OCT26.pdf`).
 - Translation copy title suffix ` (EN)` / ` (ID)`.
 - UI copy in Indonesian; CV default section titles follow CV language.
 
@@ -71,8 +71,8 @@
   - schema rejects string longer than 5 000; rejects 51 items.
   - `parseContent({ garbage: true })` returns a blank content (not throws).
   - `withFreshIds` changes every section/item/link id, keeps text.
-  - `linkHref({type:"whatsapp", value:"0813-3354-3975"})` → `https://wa.me/6281333543975`; `+6281…` → same digits without `+`.
-  - `linkHref({type:"linkedin", value:"linkedin.com/in/irfanqs"})` → `https://linkedin.com/in/irfanqs`; `linkDisplay` strips `https://` and `www.`.
+  - `linkHref({type:"whatsapp", value:"0812-3456-7890"})` → `https://wa.me/6281234567890`; `+6281…` → same digits without `+`.
+  - `linkHref({type:"linkedin", value:"linkedin.com/in/budisantoso"})` → `https://linkedin.com/in/budisantoso`; `linkDisplay` strips `https://` and `www.`.
   - `linkHref({type:"email", value:"a@b.co"})` → `mailto:a@b.co`.
   - `linkHref({type:"website", value:"javascript:alert(1)"})` → `null`.
 - [ ] Step 2: Run `pnpm test` — FAIL.
@@ -155,7 +155,7 @@
 **Interfaces:**
 - Produces: `pdfFileName(fullName: string, date: Date): string`; `rateLimit(key: string, limit: number, windowMs: number, now?: number): boolean`; `renderPdf(url: string, cookie: string): Promise<Uint8Array>`; `resolveChromePath(): string | null` (env `CHROME_EXECUTABLE_PATH`, then macOS/Linux standard paths).
 
-- [ ] Step 1: Tests: `pdfFileName("Irfan Qobus Salim", new Date("2026-10-10"))` → `CV_Irfan Qobus Salim_OCT26.pdf`; strips `/\\:*?"<>|`; empty name → `CV_OCT26.pdf`. Rate limit: 10 allowed, 11th blocked, allowed again after window.
+- [ ] Step 1: Tests: `pdfFileName("Budi Santoso", new Date("2026-10-10"))` → `CV_Budi Santoso_OCT26.pdf`; strips `/\\:*?"<>|`; empty name → `CV_OCT26.pdf`. Rate limit: 10 allowed, 11th blocked, allowed again after window.
 - [ ] Step 2: FAIL → implement → PASS.
 - [ ] Step 3: Route: session → 401; not owned → 404; rate limit → 429; render with 30 s timeout; respond with `Content-Disposition` using RFC 5987 `filename*`. Errors → 500 JSON `{ error }`.
 - [ ] Step 4: Manual: curl with session cookie returns `%PDF`. Commit `feat: export CV to PDF with headless Chrome`.

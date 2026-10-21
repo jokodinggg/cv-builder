@@ -45,7 +45,7 @@ describe("resume content schema", () => {
 describe("withFreshIds", () => {
   it("changes every section, item, and link id and keeps the text", () => {
     const content = createBlankContent("id");
-    content.links.push({ id: "link-a", type: "github", value: "github.com/irfanqs", visible: true });
+    content.links.push({ id: "link-a", type: "github", value: "github.com/budisantoso", visible: true });
     const copy = withFreshIds(content);
     const ids = (c: typeof content) => [
       ...c.links.map(link => link.id),
@@ -56,7 +56,7 @@ describe("withFreshIds", () => {
     expect(after).toHaveLength(before.length);
     after.forEach(id => expect(before).not.toContain(id));
     expect(copy.sections[0].items[0].title).toBe(content.sections[0].items[0].title);
-    expect(copy.links.at(-1)?.value).toBe("github.com/irfanqs");
+    expect(copy.links.at(-1)?.value).toBe("github.com/budisantoso");
   });
 });
 
