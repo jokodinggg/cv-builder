@@ -3,5 +3,3 @@ allowBuilds:
   '@prisma/engines': true
   esbuild: true
   prisma: true
-minimumReleaseAgeExclude:
-  - '@anthropic-ai/sdk@0.133.0'

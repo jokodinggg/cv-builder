@@ -29,7 +29,7 @@ Versi lama (HTML statis + server SQLite Python) disimpan di [`legacy/`](legacy/)
 | Database | PostgreSQL + Prisma 6. Isi CV disimpan sebagai satu dokumen JSON per CV, divalidasi Zod. |
 | Auth | Better Auth (sesi cookie, email/password, Google opsional) |
 | Drag and drop | @dnd-kit |
-| PDF | puppeteer-core + Chrome/Chromium yang terpasang di server |
+| PDF | puppeteer-core + Chrome/Chromium yang terpasang di server; di Vercel/AWS Lambda memakai `@sparticuz/chromium` |
 | Captcha | Cloudflare Turnstile (mode invisible) lewat plugin `captcha` Better Auth |
 | Tes | Vitest |
 
@@ -39,7 +39,7 @@ Butuh Node.js 20+, pnpm, PostgreSQL, dan Google Chrome (untuk PDF).
 
 ```bash
 pnpm install
-cp .env.example .env            # lalu isi DATABASE_URL dan BETTER_AUTH_SECRET
+cp .env.example .env            # lalu isi DATABASE_URL, DIRECT_URL, BETTER_AUTH_SECRET
 createdb cv_builder
 pnpm db:migrate                 # buat tabel
 pnpm db:seed                    # opsional: akun demo dengan 4 CV contoh
@@ -54,13 +54,14 @@ Buka http://localhost:3000. Akun demo dari seed: `demo@cvbuilder.local` / `demo1
 
 | Nama | Wajib | Fungsi |
 | --- | --- | --- |
-| `DATABASE_URL` | ya | Koneksi PostgreSQL |
+| `DATABASE_URL` | ya | Koneksi PostgreSQL yang dipakai aplikasi (di Vercel: URL pooler) |
+| `DIRECT_URL` | ya | Koneksi langsung untuk `prisma migrate`. Lokal: sama dengan `DATABASE_URL` |
 | `BETTER_AUTH_SECRET` | ya | Kunci sesi. Buat dengan `openssl rand -base64 32` |
 | `BETTER_AUTH_URL` | ya | URL publik aplikasi |
 | `NEXT_PUBLIC_APP_URL` | ya | Sama dengan `BETTER_AUTH_URL` |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | tidak | Aktifkan login Google |
 | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | tidak | Captcha tanpa centang di daftar, masuk, dan reset kata sandi. Kosongkan untuk mematikan. |
-| `CHROME_EXECUTABLE_PATH` | tidak | Lokasi Chrome bila tidak terdeteksi otomatis |
+| `CHROME_EXECUTABLE_PATH` | tidak | Lokasi Chrome bila tidak terdeteksi otomatis. Di Vercel kosongkan. |
 | `PDF_RENDER_ORIGIN` | tidak | Origin yang dibuka Chrome untuk PDF (default `BETTER_AUTH_URL`) |
 | `TEST_DATABASE_URL` | untuk tes | Database terpisah untuk `pnpm test` |
 
@@ -74,6 +75,7 @@ Buka http://localhost:3000. Akun demo dari seed: `demo@cvbuilder.local` / `demo1
 | `pnpm typecheck` | Cek tipe TypeScript |
 | `pnpm db:migrate` | Buat/terapkan migrasi saat pengembangan |
 | `pnpm db:deploy` | Terapkan migrasi di produksi |
+| `pnpm vercel-build` | Dipakai otomatis oleh Vercel: `prisma generate`, `prisma migrate deploy`, lalu `next build` |
 | `pnpm db:seed` | Isi akun demo |
 
 ## Cara pakai
@@ -117,4 +119,19 @@ docker compose up --build
 
 **VPS / Node biasa:** pasang Chromium (`apt install chromium`), set variabel lingkungan, lalu `pnpm install && pnpm build && pnpm db:deploy && pnpm start`.
 
-**Serverless (mis. Vercel):** semua fitur jalan kecuali Download PDF, karena fitur itu butuh binary Chrome di server. Untuk PDF server, deploy dengan Docker/VPS; di serverless pengguna tetap bisa memakai "Cetak via browser". Rate limit PDF bersifat in-memory per proses; untuk banyak instance ganti dengan Redis.
+**Vercel + Supabase:**
+
+1. Buat project di Supabase. Buka **Connect** dan salin dua URL:
+   - **Transaction pooler** (port 6543) untuk `DATABASE_URL`. Tambahkan `?pgbouncer=true&connection_limit=1` di akhir.
+   - **Session pooler** atau **Direct connection** (port 5432) untuk `DIRECT_URL`.
+2. Import repo di Vercel (framework Next.js terdeteksi otomatis).
+3. Di **Settings → Environment Variables**, isi `DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, serta `BETTER_AUTH_URL` dan `NEXT_PUBLIC_APP_URL` dengan domain produksi (mis. `https://cv.example.com`).
+4. Di **Settings → Build and Deployment**, tambahkan env `ENABLE_EXPERIMENTAL_COREPACK=1` supaya Vercel memakai pnpm versi di `packageManager`. Node.js minimal 22 (default Vercel 24).
+5. Deploy. Script `vercel-build` menjalankan migrasi database sebelum build, jadi tabel otomatis dibuat dan diperbarui.
+
+Catatan:
+
+- **Download PDF** memakai Chromium dari `@sparticuz/chromium` (sekitar 67 MB, dibuka ke `/tmp` saat pertama dipakai). Permintaan PDF pertama setelah fungsi "dingin" butuh beberapa detik lebih lama.
+- Chrome di server membuka halaman cetak lewat `BETTER_AUTH_URL`. Jika **Deployment Protection** aktif di URL itu, Chrome mendapat 401 dan PDF gagal. Pakai domain produksi (tidak diproteksi secara default), atau isi `PDF_RENDER_ORIGIN`.
+- Preview deployment juga menjalankan migrasi. Jika env Preview memakai database produksi, migrasi dari branch ikut ke produksi. Pakai database terpisah untuk Preview.
+- Rate limit PDF disimpan di memori tiap instance. Dengan banyak instance, batas efektifnya lebih longgar; ganti dengan Redis bila perlu.
